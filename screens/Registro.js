@@ -1,10 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Button, Image, ImagePickerIOS, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-export default function Registro_2({navigation}) {
+import * as ImagePicker from 'expo-image-picker';
+
+import colors from '../config/colors';
+
+
+export default function Registro({navigation}) {
 
     const [nombre, setNombre] = useState("");
     const [email, setEmail] = useState("");
@@ -16,6 +21,8 @@ export default function Registro_2({navigation}) {
     const [provinciaSeleccionada, setProvinciaSeleccionada] = useState();
 
     const [arrayProvincias, setArrayProvincias] = useState();
+
+    const [image, setImage] = useState(null);
 
     //se llama antes de renderizar
     useEffect(() => {
@@ -53,6 +60,26 @@ export default function Registro_2({navigation}) {
 
     }*/
 
+    const pickImageCallback = () =>
+    {
+        console.log("welcome back");
+    }
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [16, 16],
+          quality: 1,
+        });
+    
+        console.log(result);
+    
+        if (!result.cancelled) {
+            setImage(result.uri);
+        }
+      };
+
     const Registrar = () =>
     {
         //comprobamos que ha rellenado todos los campos
@@ -65,7 +92,7 @@ export default function Registro_2({navigation}) {
             else
             {
                 //llamamos a la api para guardar en la bbdd
-                let apiUrl = "http://10.0.2.2:80/LiveFoot/api.php?action=insertar_club";
+                let apiUrl = "http://192.168.1.39:80/LiveFoot/api.php?action=insertar_club";
                 let headers = {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -87,7 +114,6 @@ export default function Registro_2({navigation}) {
                 .catch((error)=>{console.log(error.message);Alert.alert("Error", error.message);})
 
                 //https://stackoverflow.com/questions/56715637/using-ajax-on-react-native
-                //https://es.reactjs.org/docs/faq-ajax.html
                              
             }
             
@@ -100,27 +126,18 @@ export default function Registro_2({navigation}) {
     }
 
     return (
-        <View style={styles.container}>
-            <TextInput style={styles.textInput} placeholder={"Nombre"} placeholderTextColor={"#777777"} onChangeText={text => setNombre(text)} />
+        <ScrollView style={styles.container}>
+            <TextInput style={styles.textInput} placeholder={"Nombre del club"} placeholderTextColor={"#777777"} onChangeText={text => setNombre(text)} />
             <TextInput style={styles.textInput} placeholder={"Email"} placeholderTextColor={"#777777"} onChangeText={text => setEmail(text)} />
             <TextInput style={styles.textInput} placeholder={"Contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass(text)}/>
-            <TextInput style={styles.textInput} placeholder={"Repite ontraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass2(text)}/>
+            <TextInput style={styles.textInput} placeholder={"Repite contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass2(text)}/>
             <TextInput style={styles.textInput} placeholder={"Provincia"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setIdProvincia(text)}/>
-            <TextInput style={styles.textInput} placeholder={"Escudo"} placeholderTextColor={"#777777"} onChangeText={text => setEscudo(text)}/>
+            <Button title={"Elegir escudo"} onPress={pickImage}/>
+            {image  && <Image style={styles.escudo} source={{ uri: image }}/>}
 
-            <Picker
-            selectedValue={provinciaSeleccionada}
-            onValueChange={(itemValue, itemIndex) =>
-                setProvinciaSeleccionada(itemValue)
-            }>
-            <Picker.Item label="Javass" value="java" />
-            <Picker.Item label="JavaScript" value="js" />
-            <Picker.Item label="JavaScript" value="js" />
-            </Picker>
+            {/*<Button title={"Registrar"} onPress={Registrar}/>*/}
         
-            <Button title={"Registrar"} onPress={Registrar}/>
-            <Button title={"Cambiar pantalla"} onPress={() => navigation.navigate('Australopitecus')}/>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -131,12 +148,20 @@ const styles = StyleSheet.create({
       padding: 20,
       marginTop: 10
     },
-  
     textInput:
     {
-        borderBottomWidth: 1,
-        borderBottomColor: 'red',
-        marginBottom: 20
+        fontSize: 20,
+        padding: 10,
+        borderColor: colors.lightgreen,
+        borderWidth: 3, 
+        borderRadius: 25,
+        marginBottom: 30
+    },
+    escudo:
+    {
+        alignSelf: 'center',
+        width: 200,
+        height: 200
     }
   });
   

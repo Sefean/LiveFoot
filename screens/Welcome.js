@@ -8,12 +8,12 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export default function Welcome({navigation}) {
 
-    const adminPress = () =>
+    const pressAdmin = () =>
     {
-        console.log('ADMINISTRADOR');
+        navigation.navigate('Login');
     }
 
-    const publicPress = () =>
+    const pressPublic = () =>
     {
         console.log('PÚBLICO');
     }
@@ -24,10 +24,10 @@ export default function Welcome({navigation}) {
                 style={styles.image}
                 resizeMode={'contain'}
                 source={require("../assets/logo.png")}/>
-            <TouchableHighlight onPress={adminPress} style={styles.buttons} underlayColor={colors.lightgreen}>    
+            <TouchableHighlight onPress={pressAdmin} style={styles.buttons} underlayColor={colors.lightgreen}>    
                 <View><Text style={styles.text}>ACCESO ADMINISTRADOR</Text></View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={publicPress} style={styles.buttons} underlayColor={colors.lightgreen}>    
+            <TouchableHighlight onPress={pressPublic} style={styles.buttons} underlayColor={colors.lightgreen}>    
                 <View><Text style={styles.text}>ACCESO PÚBLICO</Text></View>
             </TouchableHighlight>
         </SafeAreaView>

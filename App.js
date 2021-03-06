@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Registro from './screens/Registro.js';
 import Tests from './screens/tests.js';
 import Welcome from './screens/Welcome.js';
+import Login from './screens/Login.js';
 import { color } from 'react-native-reanimated';
 
 const Stack = createStackNavigator();
@@ -13,17 +14,23 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen
+          name = "Registro"
+          component = {Registro}
+          options={{title:'Registro'}}
+        />
+      <Stack.Screen
           name = "Welcome"
           component = {Welcome}
           options={{headerShown: false }}
         />
         <Stack.Screen
-          name = "Registro"
-          component = {Registro}
-          options={{title:'Registro'}}
+          name = "Login"
+          component = {Login}
+          options={{headerShown: false }}
         />
+        
         <Stack.Screen
-          name = "Australopitecus"
+          name = "Tests"
           component = {Tests}
           options={{title:'Test'}}
         />
