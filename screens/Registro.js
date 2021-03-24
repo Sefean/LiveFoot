@@ -7,7 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
 
 import colors from '../config/colors';
-
+import cons from '../config/cons';
 
 export default function Registro({navigation}) {
 
@@ -60,25 +60,46 @@ export default function Registro({navigation}) {
 
     }*/
 
-    const pickImageCallback = () =>
+    const uploadImg = (result) => 
     {
-        console.log("welcome back");
-    }
+        const formData = new FormData();
+        formData.append('image', {
+            uri: result.uri,
+            name: 'my_photo.png',
+            type: 'image/png'
+          });
+          formData.append('Content-Type', 'image/png');
 
-    const pickImage = async () => {
+          fetch('http://10.0.2.2:80/LiveFoot/api.php?action=uploadImg',{
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then((response) => response.json())
+            .then((responseJson) => {
+               console.log(responseJson);     
+              })
+              .catch((error) => {
+                  console.log(error);
+            });
+    };
+
+    const pickImage = async () => 
+    {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: true,
           aspect: [16, 16],
           quality: 1,
         });
-    
-        console.log(result);
-    
+
         if (!result.cancelled) {
             setImage(result.uri);
+            uploadImg(result);
         }
-      };
+    };
 
     const Registrar = () =>
     {
@@ -126,18 +147,22 @@ export default function Registro({navigation}) {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <TextInput style={styles.textInput} placeholder={"Nombre del club"} placeholderTextColor={"#777777"} onChangeText={text => setNombre(text)} />
-            <TextInput style={styles.textInput} placeholder={"Email"} placeholderTextColor={"#777777"} onChangeText={text => setEmail(text)} />
-            <TextInput style={styles.textInput} placeholder={"Contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass(text)}/>
-            <TextInput style={styles.textInput} placeholder={"Repite contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass2(text)}/>
-            <TextInput style={styles.textInput} placeholder={"Provincia"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setIdProvincia(text)}/>
-            <Button title={"Elegir escudo"} onPress={pickImage}/>
-            {image  && <Image style={styles.escudo} source={{ uri: image }}/>}
+        <View style={styles.container}>
+            <ScrollView >
+                <TextInput style={styles.textInput} placeholder={"Nombre del club"} placeholderTextColor={"#777777"} onChangeText={text => setNombre(text)} />
+                <TextInput style={styles.textInput} placeholder={"Email"} placeholderTextColor={"#777777"} onChangeText={text => setEmail(text)} />
+                <TextInput style={styles.textInput} placeholder={"Contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass(text)}/>
+                <TextInput style={styles.textInput} placeholder={"Repite contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass2(text)}/>
+                <TextInput style={styles.textInput} placeholder={"Provincia"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setIdProvincia(text)}/>
+                <Button title={"Elegir escudo"} onPress={pickImage}/>
+            {/*{image  && <Image style={styles.escudo} source={{ uri: image }}/>}*/}
 
-            {/*<Button title={"Registrar"} onPress={Registrar}/>*/}
-        
-        </ScrollView>
+                <Image style={styles.escudo} source={{uri: cons.apiUrl + '/img/escudoDefault.png'}} />
+                
+                {<Button title={"Registrar"} onPress={Registrar}/>}
+            
+            </ScrollView>
+        </View>
     );
 }
 
@@ -158,7 +183,8 @@ const styles = StyleSheet.create({
         marginBottom: 30
     },
     escudo:
-    {
+    {   
+        margin: 25,
         alignSelf: 'center',
         width: 200,
         height: 200
