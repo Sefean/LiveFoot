@@ -14,14 +14,14 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen
-          name = "Registro"
-          component = {Registro}
-          options={{title:'Registro'}}
-        />
-      <Stack.Screen
           name = "Welcome"
           component = {Welcome}
           options={{headerShown: false }}
+        />
+      <Stack.Screen
+          name = "Registro"
+          component = {Registro}
+          options={{title:'Registro'}}
         />
         <Stack.Screen
           name = "Login"
