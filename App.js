@@ -6,6 +6,7 @@ import Welcome from './screens/Welcome.js';
 import Login from './screens/Login.js';
 import AdminSelectTeam from './screens/AdminSelectTeam.js';
 import AdminTeam from './screens/AdminTeam.js';
+import AddMatch from './screens/AddMatch.js';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -40,6 +41,11 @@ export default function App() {
           name = "AdminTeam"
           component = {AdminTeam}
           options={{title:'Editar equipo'}}
+        />
+        <Stack.Screen
+          name = "AddMatch"
+          component = {AddMatch}
+          options={{title:'Nuevo partido'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

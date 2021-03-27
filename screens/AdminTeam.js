@@ -21,8 +21,7 @@ export default function AdminTeam({route, navigation}) {
 
     const cambiarPagina = (nombrePagina) => 
     {
-        console.log(nombrePagina);
-
+        navigation.navigate(nombrePagina, {idEquipo: idEquipo});
     }
 
     return (
@@ -36,9 +35,9 @@ export default function AdminTeam({route, navigation}) {
 
                 <View style={styles.row}>
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('add')}} >
-                            <Icon size={60}  name="add" style={styles.icon}></Icon>
-                            <Text style={styles.buttonText}>PARTIDO</Text>
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('AddMatch')}} >
+                            <Icon size={60}  name="sports-volleyball" style={styles.icon}></Icon>
+                            <Text style={styles.buttonText}>CREAR PARTIDO</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -55,7 +54,7 @@ export default function AdminTeam({route, navigation}) {
                     <View style={styles.touchableContainer}>
                         <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('calendario')}} >
                             <Icon size={60} name="calendar-today" style={styles.icon}></Icon>
-                            <Text style={styles.buttonText}>PARTIDOS</Text>
+                            <Text style={styles.buttonText}>VER PARTIDOS</Text>
                         </TouchableOpacity>
                     </View>
 
