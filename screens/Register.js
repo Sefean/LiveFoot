@@ -104,7 +104,7 @@ export default function Registro({navigation}) {
     const Registrar = () =>
     {
         //comprobamos que ha rellenado todos los campos
-        if(nombre && email && pass && pass2 && id_provincia && escudo)
+        if(nombre && email && pass && pass2 && id_provincia)
         {
             if(pass != pass2)
             {
@@ -113,7 +113,7 @@ export default function Registro({navigation}) {
             else
             {
                 //llamamos a la api para guardar en la bbdd
-                let apiUrl = "http://192.168.1.39:80/LiveFoot/api.php?action=insertar_club";
+                let apiUrl = cons.apiUrl + "/api.php?action=insertarClub";
                 let headers = {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',

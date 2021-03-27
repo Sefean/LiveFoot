@@ -5,6 +5,7 @@ import { SafeAreaView, Alert, Button, StyleSheet, Text, TextInput, View, Image, 
 import { Ionicons } from '@expo/vector-icons';
 
 import colors from '../config/colors';
+import cons from '../config/cons';
 import { useState } from 'react/cjs/react.development';
 
 export default function Login({navigation}) {
@@ -16,41 +17,71 @@ export default function Login({navigation}) {
 
     const pressRegistro = () =>
     {
-        navigation.navigate('Registro');
+        navigation.navigate('Register');
     }
 
     const pressEntar = () =>
     {
-        let apiUrl = "http://192.168.1.39:80/LiveFoot/api.php?action=login";
-                let headers = {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                };
+        let apiUrl = cons.apiUrl + "/api.php?action=login";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
 
-                let data = {
-                    email: email,
-                    pass: pass,
-                };
+        let data = {
+            //email: email,
+            //pass: pass,
+            email: "intangco@gmail.com",
+            pass: "123456"
+        };
 
-                console.log(JSON.stringify(data));
+        console.log(JSON.stringify(data));
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+            
+            if(response == 0)
+            {
+                Alert.alert("Error", "Email y/o contraseña incorrecto.");
+
+                //limpiamos el campo contraseña
+                passInput.current.clear();
+            }
+            else
+            {
+                let idClub = response;
+                let escudo = "";
+                let nombreClub = "";
+                let equipos = new Array();
+
+                apiUrl = cons.apiUrl + "/api.php?action=getInfoClub";
+
+                data = {
+                    idclub: idClub
+                };
 
                 fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
                 .then((response)=>response.text())
                 .then((response)=>{
                     
-                    if(response == 0)
+                    if(response)
                     {
-                        Alert.alert("Error", "Email y/o contraseña incorrecto.");
+                        let infoClub = JSON.parse(response);
+                        
+                        nombreClub = infoClub.nombre;
+                        escudo = cons.apiUrl + '/img/' + infoClub.escudo;
+                        equipos = infoClub.equipos;
 
-                        //limpiamos el campo contraseña
-                        passInput.current.clear();
-                    }
-                    else if(response == 1)
-                    {
-                        console.log('in');
+                        navigation.navigate('AdminSelectTeam', {idClub: idClub, nombreClub: nombreClub, escudo: escudo, equipos: equipos});
+                        //console.log('in');
+                       
                     }                
                 })
-                .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error de servidor al intentar entrar. Pruebe más tarde.");})
+                .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener la información del club.");})
+            }                
+        })
+        .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al intentar hacer login.");})
         
     }
 
@@ -62,7 +93,6 @@ export default function Login({navigation}) {
                 source={require("../assets/logo.png")}/>
             <TextInput style={styles.input} placeholder={"Email"} onChangeText={text => setEmail(text)}></TextInput>
             <TextInput ref={passInput} style={styles.input} secureTextEntry={true} placeholder={"Contraseña"} onChangeText={text => setPass(text)}></TextInput>
-            
 
             <View style={styles.buttonContainer}>
                 <TouchableHighlight style={styles.buttons} onPress={pressRegistro} underlayColor={colors.lightgreen}>    

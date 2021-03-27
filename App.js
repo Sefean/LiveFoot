@@ -1,16 +1,19 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Registro from './screens/Registro.js';
-import Tests from './screens/tests.js';
+import Register from './screens/Register.js';
 import Welcome from './screens/Welcome.js';
 import Login from './screens/Login.js';
+import AdminSelectTeam from './screens/AdminSelectTeam.js';
 import { color } from 'react-native-reanimated';
+import { Button } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen
@@ -19,23 +22,23 @@ export default function App() {
           options={{headerShown: false }}
         />
       <Stack.Screen
-          name = "Registro"
-          component = {Registro}
-          options={{title:'Registro'}}
+          name = "Register"
+          component = {Register}
+          options={{title:'Register'}}
         />
         <Stack.Screen
           name = "Login"
           component = {Login}
           options={{headerShown: false }}
         />
-        
         <Stack.Screen
-          name = "Tests"
-          component = {Tests}
-          options={{title:'Test'}}
+          name = "AdminSelectTeam"
+          component = {AdminSelectTeam}
+          options={{title:'Selección de equipo'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </SafeAreaProvider>
     );
 }
 
