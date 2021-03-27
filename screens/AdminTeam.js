@@ -19,6 +19,11 @@ export default function AdminTeam({route, navigation}) {
         navigation.setOptions({ title: nombreEquipo})
     });
 
+    const cambiarPagina = (nombrePagina) => 
+    {
+        console.log(nombrePagina);
+
+    }
 
     return (
         <SafeAreaView style={styles.mainContainer}>
@@ -28,42 +33,38 @@ export default function AdminTeam({route, navigation}) {
             </View>
 
             <View style={styles.secondContainer}>
+
                 <View style={styles.row}>
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{console.log('add')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('add')}} >
                             <Icon size={60}  name="add" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>PARTIDO</Text>
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{console.log('jugadores')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('jugadores')}} >
                             
                             <Icon size={60} name="groups" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>JUGADORES</Text>
                         </TouchableOpacity>
                     </View>
-                    
-
-                   
                 </View>             
 
                 <View style={styles.row}>
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{console.log('calendario')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('calendario')}} >
                             <Icon size={60} name="calendar-today" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>PARTIDOS</Text>
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{console.log('edit')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('edit')}} >
                             <Icon size={60} name="edit" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>EDITAR</Text>
                         </TouchableOpacity>
                     </View>   
-
-                    
                 </View>
             </View>           
         </SafeAreaView>
