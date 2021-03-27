@@ -1,5 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button } from 'react-native';
+import React, {useEffect} from 'react';
+import {StyleSheet, Text, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button } from 'react-native';
 import { Icon } from "react-native-elements";
 
 import colors from '../config/colors';
@@ -8,7 +8,6 @@ import cons from '../config/cons';
 export default function AdminSelectTeam({route, navigation}) {
     
     const params = route.params;
-    const idclub = params.idClub;
     const escudo = params.escudo;
     const nombreClub = params.nombreClub;
     const equipos = params.equipos;
@@ -27,8 +26,8 @@ export default function AdminSelectTeam({route, navigation}) {
       />)})
     });
 
-    const equipoSeleccionado = (id_equipo) => {
-        console.log(id_equipo);
+    const equipoSeleccionado = (idEquipo, nombre) => {
+        navigation.navigate('AdminTeam', {escudo: escudo, idEquipo: idEquipo, nombreEquipo: nombre});
     }
 
     return (
@@ -42,7 +41,7 @@ export default function AdminSelectTeam({route, navigation}) {
                     data={equipos}
                     renderItem={({item}) => 
                     (
-                        <TouchableOpacity onPress={ () => equipoSeleccionado(item.id_equipo)}>
+                        <TouchableOpacity onPress={ () => equipoSeleccionado(item.id_equipo, item.nombre)}>
 
                             <View style={styles.equiposView}>
                                 <Text style={styles.equiposText}>{item.nombre}</Text>
@@ -96,4 +95,4 @@ const styles = StyleSheet.create({
     equiposText: {        
         fontSize: 20,
     },
-  });
+});

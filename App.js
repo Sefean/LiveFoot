@@ -5,8 +5,8 @@ import Register from './screens/Register.js';
 import Welcome from './screens/Welcome.js';
 import Login from './screens/Login.js';
 import AdminSelectTeam from './screens/AdminSelectTeam.js';
-import { color } from 'react-native-reanimated';
-import { Button } from 'react-native';
+import AdminTeam from './screens/AdminTeam.js';
+
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator();
@@ -35,6 +35,11 @@ export default function App() {
           name = "AdminSelectTeam"
           component = {AdminSelectTeam}
           options={{title:'Selección de equipo'}}
+        />
+        <Stack.Screen
+          name = "AdminTeam"
+          component = {AdminTeam}
+          options={{title:'Editar equipo'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
