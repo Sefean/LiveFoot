@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, ScrollView, Text, TextInput, View, Image, TouchableHighlight, FlatList, SafeAreaView, Button, TouchableWithoutFeedback, LogBox } from 'react-native';
+import {StyleSheet, ScrollView, Text, TextInput, View, Alert, Image, TouchableHighlight, FlatList, SafeAreaView, Button, TouchableWithoutFeedback, LogBox } from 'react-native';
 import { Icon } from "react-native-elements";
 import { RadioButton } from 'react-native-paper';
 
@@ -8,17 +8,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-import { YellowBox } from "react-native";
+import Toast from 'react-native-simple-toast';
 
 export default function AddMatch({route, navigation}) {
     
   const params = route.params;
   const idEquipo = params.idEquipo;
   
-  const [localVisitante, setLocalVisitante] = useState('local');
-  const [email, setEstadio] = useState("");
-  const [pass, setDuracion] = useState("");
-  const [pass2, setRival] = useState("");
+  const [localVisitante, setLocalVisitante] = useState(1);
+  const [estadio, setEstadio] = useState("");
+  const [duracion, setDuracion] = useState("");
+  const [rival, setRival] = useState("");
 
   //datepicker
   const [date, setDate] = useState(new Date());
@@ -72,6 +72,49 @@ export default function AddMatch({route, navigation}) {
   };
   //fin datepicker
 
+  const saveMatch = () =>
+  {
+    console.log(dateString);
+    console.log(estadio);
+    console.log(duracion);
+    console.log(rival);
+    console.log(localVisitante);
+    var escudo = "esc_0.png";
+
+    if(dateString && estadio && duracion && rival)
+    {
+      //llamamos a la api para guardar en la bbdd
+      let apiUrl = cons.apiUrl + "/api.php?action=insertarPartido";
+      let headers = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      };
+
+      let data = {
+          id_equipo: idEquipo,
+          local: localVisitante,
+          estadio: estadio,
+          minutos_partido: duracion,
+          nombre_rival: rival,
+          escudo_rival: escudo,
+          fecha_hora: dateString,
+      };
+
+      console.log(JSON.stringify(data));
+
+      fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+      .then((response)=>response.text())
+      .then((response)=>{
+        Toast.show(response);
+        navigation.goBack();
+      })
+      .catch((error)=>{console.log(error.message);Alert.alert("Error", error.message);})
+      }
+      else
+      {
+        Alert.alert("Error", "Todos los campos deben ser rellenados.");
+      }
+  }
   //se llama antes de renderizar
   useEffect(() => {
       
@@ -94,12 +137,12 @@ export default function AddMatch({route, navigation}) {
           <ScrollView style={styles.scrollView}>
               <View style={styles.radioContainer}>
                   <View style={styles.columnRadio}>
-                      <RadioButton value="first" color={colors.mediumgreen} status={ localVisitante === 'local' ? 'checked' : 'unchecked' } onPress={() => setLocalVisitante('local')}/>
+                      <RadioButton value="first" color={colors.mediumgreen} status={ localVisitante === 1 ? 'checked' : 'unchecked' } onPress={() => setLocalVisitante(1)}/>
                       <Text>LOCAL</Text>
                   </View>
 
                   <View style={styles.columnRadio}>
-                      <RadioButton value="first" color={colors.mediumgreen} status={ localVisitante === 'visitante' ? 'checked' : 'unchecked' } onPress={() => setLocalVisitante('visitante')}/>
+                      <RadioButton value="first" color={colors.mediumgreen} status={ localVisitante === 0 ? 'checked' : 'unchecked' } onPress={() => setLocalVisitante(0)}/>
                       <Text>VISITANTE</Text>
                   </View>
               </View>
@@ -116,7 +159,7 @@ export default function AddMatch({route, navigation}) {
               {/*<TextInput style={styles.textInput} placeholder={"Escudo rival"} placeholderTextColor={"#777777"} onChangeText={text => setIdProvincia(text)}/>*/}
           </ScrollView>
           <View style={styles.buttonContainer}>
-              <TouchableHighlight style={styles.buttons} underlayColor={colors.lightgreen}>    
+              <TouchableHighlight onPress={saveMatch} style={styles.buttons} underlayColor={colors.lightgreen}>    
                   <View style={styles.viewButton}><Text style={styles.text}>GUARDAR</Text></View>
               </TouchableHighlight>
           </View>
