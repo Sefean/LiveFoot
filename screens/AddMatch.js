@@ -52,7 +52,7 @@ export default function AddMatch({route, navigation}) {
     //nos quedamos con la hora sin la fecha
     aux_sqlHour = aux_sqlHour.substring(11,16);
 
-    setDateString(dateString + " - " + aux_time)
+    setDateString(dateString + " - " + aux_time);
 
     setDateSQL(dateSQL + " " + aux_sqlHour);
 

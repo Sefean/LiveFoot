@@ -23,11 +23,38 @@ export default function AdminTeam({route, navigation}) {
     {
         if(nombrePagina == "MatchHistory")
         {
-            
+            let apiUrl = cons.apiUrl + "/api.php?action=getPartidos";
+            let headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            };
 
+            let data = {
+                id_equipo: idEquipo
+            };
+
+            fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+            .then((response)=>response.text())
+            .then((response)=>{
+                    
+                if(response)
+                {
+                    let partidos = JSON.parse(response);
+
+                    navigation.navigate('MatchHistory', {
+                        idEquipo: idEquipo,
+                        partidos: partidos,
+                        escudo: escudo,
+                        nombreEquipo: nombreEquipo});                       
+                }                
+             })
+            .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
+        }
+        else
+        {
+            navigation.navigate(nombrePagina, {idEquipo: idEquipo});
         }
 
-        navigation.navigate(nombrePagina, {idEquipo: idEquipo});
     }
 
     return (
