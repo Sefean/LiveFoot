@@ -25,23 +25,37 @@ export default function AddMatch({route, navigation}) {
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
   const [dateString, setDateString] = useState("");
+  const [dateSQL, setDateSQL] = useState("");
 
   const modifyDate = (selectedDate) => {
-    let aux_date = selectedDate.toLocaleDateString();
-   
-    let aux_date_arr = aux_date.split(/\//);
+    let day = ("0" + selectedDate.getDate()).slice(-2);
+    let month = ("0" + (selectedDate.getMonth() + 1)).slice(-2)
+    let year = selectedDate.getFullYear();
 
-    aux_date = [aux_date_arr[1], aux_date_arr[0], aux_date_arr[2]].join("/");
+    let aux_date = day + "/" + month + "/" + year;
     
+    let aux_sqlDate = selectedDate.toISOString().slice(0, 19).replace('T', ' ');
+    //nos quedamos con la fecha sin la hora
+    aux_sqlDate = aux_sqlDate.substring(0,10);
+
+    setDateSQL(aux_sqlDate);
+
     setDateString(aux_date);
 
     showTimepicker();
   }
 
   const modifyTime = (selectedTime) => {
-    let aux_time =  selectedTime.getHours() + ":" + ('0'+selectedTime.getMinutes()).slice(-2);
+    let aux_time =  ('0' + selectedTime.getHours()).slice(-2) + ":" + ('0'+selectedTime.getMinutes()).slice(-2);
     
+    let aux_sqlHour = selectedTime.toISOString().slice(0, 19).replace('T', ' ');
+    //nos quedamos con la hora sin la fecha
+    aux_sqlHour = aux_sqlHour.substring(11,16);
+
     setDateString(dateString + " - " + aux_time)
+
+    setDateSQL(dateSQL + " " + aux_sqlHour);
+
   }
 
   const onChange = (event, selectedDate) => {
@@ -74,14 +88,9 @@ export default function AddMatch({route, navigation}) {
 
   const saveMatch = () =>
   {
-    console.log(dateString);
-    console.log(estadio);
-    console.log(duracion);
-    console.log(rival);
-    console.log(localVisitante);
     var escudo = "esc_0.png";
 
-    if(dateString && estadio && duracion && rival)
+    if(dateSQL && estadio && duracion && rival)
     {
       //llamamos a la api para guardar en la bbdd
       let apiUrl = cons.apiUrl + "/api.php?action=insertarPartido";
@@ -97,10 +106,8 @@ export default function AddMatch({route, navigation}) {
           minutos_partido: duracion,
           nombre_rival: rival,
           escudo_rival: escudo,
-          fecha_hora: dateString,
+          fecha_hora: dateSQL,
       };
-
-      console.log(JSON.stringify(data));
 
       fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
       .then((response)=>response.text())

@@ -21,6 +21,12 @@ export default function AdminTeam({route, navigation}) {
 
     const cambiarPagina = (nombrePagina) => 
     {
+        if(nombrePagina == "MatchHistory")
+        {
+            
+
+        }
+
         navigation.navigate(nombrePagina, {idEquipo: idEquipo});
     }
 
@@ -52,7 +58,7 @@ export default function AdminTeam({route, navigation}) {
 
                 <View style={styles.row}>
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('calendario')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('MatchHistory')}} >
                             <Icon size={60} name="calendar-today" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>VER PARTIDOS</Text>
                         </TouchableOpacity>

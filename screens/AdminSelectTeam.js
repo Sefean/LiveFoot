@@ -18,12 +18,12 @@ export default function AdminSelectTeam({route, navigation}) {
         //cambiamos el nombre de la barra
         navigation.setOptions({ title: nombreClub, headerRight: () => (
             
-            <Icon
-        containerStyle={styles.icon}
-        type="ionicon"
-        name={Platform.OS === "ios" ? "ios-menu" : "md-add"}
-        onPress={() => equipoSeleccionado(777)}
-      />)})
+        <Icon
+            containerStyle={styles.icon}
+            type="ionicon"
+            name={Platform.OS === "ios" ? "ios-menu" : "md-add"}
+            onPress={() => equipoSeleccionado(777)}
+        />)})
     });
 
     const equipoSeleccionado = (idEquipo, nombre) => {
