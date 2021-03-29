@@ -14,6 +14,8 @@ export default function AddMatch({route, navigation}) {
     
   const params = route.params;
   const idEquipo = params.idEquipo;
+  const paramsEstadio = params.estadio;
+  const paramsMinutos_partido = params.minutos_partido;
   
   const [localVisitante, setLocalVisitante] = useState(1);
   const [estadio, setEstadio] = useState("");
@@ -122,10 +124,6 @@ export default function AddMatch({route, navigation}) {
         Alert.alert("Error", "Todos los campos deben ser rellenados.");
       }
   }
-  //se llama antes de renderizar
-  useEffect(() => {
-      
-  });
 
   return (
       <SafeAreaView style={styles.mainContainer}>
@@ -160,8 +158,8 @@ export default function AddMatch({route, navigation}) {
                 </View>
               </TouchableWithoutFeedback>
 
-              <TextInput style={styles.textInput} placeholder={"Estadio/Campo"} placeholderTextColor={"#777777"} onChangeText={text => setEstadio(text)} />
-              <TextInput style={styles.textInput} placeholder={"Druación partido (min)"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setDuracion(text)}/>
+              <TextInput defaultValue={paramsEstadio} style={styles.textInput} placeholder={"Estadio/Campo"} placeholderTextColor={"#777777"} onChangeText={text => setEstadio(text)} />
+              <TextInput defaultValue={paramsMinutos_partido} style={styles.textInput} placeholder={"Duración partido (min)"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setDuracion(text)}/>
               <TextInput style={styles.textInput} placeholder={"Nombre rival"} placeholderTextColor={"#777777"} onChangeText={text => setRival(text)}/>
               {/*<TextInput style={styles.textInput} placeholder={"Escudo rival"} placeholderTextColor={"#777777"} onChangeText={text => setIdProvincia(text)}/>*/}
           </ScrollView>

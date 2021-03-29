@@ -14,24 +14,24 @@ export default function AdminTeam({route, navigation}) {
     
     //se llama antes de renderizar
     useEffect(() => {
-        
         //cambiamos el nombre de la barra
         navigation.setOptions({ title: nombreEquipo})
     });
 
     const cambiarPagina = (nombrePagina) => 
     {
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_equipo: idEquipo
+        };
+
         if(nombrePagina == "MatchHistory")
         {
             let apiUrl = cons.apiUrl + "/api.php?action=getPartidos";
-            let headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            };
-
-            let data = {
-                id_equipo: idEquipo
-            };
 
             fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
             .then((response)=>response.text())
@@ -50,9 +50,23 @@ export default function AdminTeam({route, navigation}) {
              })
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
         }
-        else
+        else if(nombrePagina == "AddMatch")
         {
-            navigation.navigate(nombrePagina, {idEquipo: idEquipo});
+            let apiUrl = cons.apiUrl + "/api.php?action=getInfoEquipo";
+
+            fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+            .then((response)=>response.text())
+            .then((response)=>{
+                    
+                if(response)
+                {
+                    let infoEquipo = JSON.parse(response);
+
+                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, estadio: infoEquipo.estadio, minutos_partido: infoEquipo.minutos_partido});                 
+                }                
+             })
+            .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
+            
         }
 
     }
@@ -61,7 +75,6 @@ export default function AdminTeam({route, navigation}) {
         <SafeAreaView style={styles.mainContainer}>
             <View style={styles.escudoContainer}>
                 <Image style={styles.escudo} source={{uri: escudo}} />
-              
             </View>
 
             <View style={styles.secondContainer}>

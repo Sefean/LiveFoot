@@ -16,7 +16,8 @@ export default function AdminSelectTeam({route, navigation}) {
     useEffect(() => {
         
         //cambiamos el nombre de la barra
-        navigation.setOptions({ title: nombreClub, headerRight: () => (
+        var newTitle = nombreClub.toUpperCase();
+        navigation.setOptions({ title: newTitle, headerRight: () => (
             
         <Icon
             containerStyle={styles.icon}
