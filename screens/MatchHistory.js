@@ -42,6 +42,19 @@ function PartidoView(props) {
     var escudoEquipo = cons.apiUrl + '/img/' + partido.escudo;
     var escudoRival = cons.apiUrl + '/img/' + partido.escudo_rival;
 
+    var nombreLocal = partido.nombre;
+    var nombreVisitante = partido.nombre_rival;
+    var escudoLocal = escudoEquipo;
+    var escudoVisitante = escudoRival;
+
+    if(partido.local == 0)
+    {
+        nombreLocal = partido.nombre_rival;
+        nombreVisitante = partido.nombre;
+        escudoLocal = escudoRival;
+        escudoVisitante = escudoEquipo;
+    }
+
     return (
     <TouchableOpacity onPress={ () => partidoSeleccionado(partido.id_partido)}>
         <View style={{padding: 10, height: 150, borderTopWidth: 0.2, backgroundColor: background}}>
@@ -49,18 +62,21 @@ function PartidoView(props) {
                 <Text style={styles.cabeceraPartido}>{partido.estadio} | {fecha} | {hora}</Text>
             </View>
             <View style={styles.secondRow}>
+
                 <View style={styles.columnSide}>
                     <View>
-                        <Image style={styles.escudo} source={{uri: escudoEquipo}} />
+                        <Image style={styles.escudo} source={{uri: escudoLocal}} />
                     </View>
-                    <Text style={styles.nombreEquipoTexto}>{partido.nombre}</Text>
+                    <Text style={styles.nombreEquipoTexto}>{nombreLocal}</Text>
                 </View>
+                
                 <View style={styles.columnCenter}><Text style={styles.resultado}>{partido.goles_local} - {partido.goles_visitante}</Text></View>
+                
                 <View style={styles.columnSide}>
                     <View>
-                        <Image style={styles.escudo} source={{uri: escudoRival}} />
+                        <Image style={styles.escudo} source={{uri: escudoVisitante}} />
                     </View>
-                    <Text style={styles.nombreEquipoTexto}>{partido.nombre_rival}</Text>
+                    <Text style={styles.nombreEquipoTexto}>{nombreVisitante}</Text>
                 </View>
             </View>
         </View>
@@ -75,16 +91,6 @@ export default function MatchHistory({route, navigation}) {
     const nombreEquipo = params.nombreEquipo;
     const partidos = params.partidos;
     
-    //se llama antes de renderizar
-    useEffect(() => {
-        
-        //cambiamos el nombre de la barra
-        /*console.log(escudo);
-        console.log(idEquipo);
-        console.log(nombreEquipo);
-        console.log(partidos);*/
-    });
-
     return (
         <SafeAreaView style={styles.equiposView}>
             <ScrollView>
@@ -149,11 +155,5 @@ const styles = StyleSheet.create({
         width: 75,
         height: 75,
         margin: 5
-    },
-    escudoContainer:
-    {
-        flex: 0.25,
-        backgroundColor: colors.white,
-        padding: 25
     }
 });

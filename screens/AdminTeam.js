@@ -68,6 +68,24 @@ export default function AdminTeam({route, navigation}) {
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
             
         }
+        else if(nombrePagina == "Players")
+        {
+            let apiUrl = cons.apiUrl + "/api.php?action=getJugadores";
+
+            fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+            .then((response)=>response.text())
+            .then((response)=>{
+                    
+                if(response)
+                {
+                    let jugadores = JSON.parse(response);
+                    
+                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, jugadores: jugadores});                 
+                }                
+             })
+            .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
+
+        }
 
     }
 
@@ -88,7 +106,7 @@ export default function AdminTeam({route, navigation}) {
                     </View>
 
                     <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('jugadores')}} >
+                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('Players')}} >
                             
                             <Icon size={60} name="groups" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>JUGADORES</Text>

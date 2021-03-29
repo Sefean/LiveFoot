@@ -1,274 +1,251 @@
 <?php
-	$servername = "localhost";
-	$username = "root";
-	$password = "";
-	$database_name = "livefoot";
-	
-	$conexion = mysqli_connect($servername, $username, $password);
-	$database = mysqli_select_db($conexion, $database_name);
-	mysqli_set_charset($conexion, 'utf8'); 
+$servername = 'localhost';
+$username = 'root';
+$password = '';
+$database_name = 'livefoot';
 
-	$action = $_GET["action"];
+$conexion = mysqli_connect($servername, $username, $password);
+$database = mysqli_select_db($conexion, $database_name);
+mysqli_set_charset($conexion, 'utf8');
 
-	switch ($action) {
-		case 'insertarClub':
-			insertarClub();
-			break;
-		case 'insertarEquipo':
-			insertarEquipo();
-			break;
-		case 'insertarJugador':
-			insertarJugador();
-			break;
-		case 'insertarPartido':
-			insertarPartido();
-			break;
-		case 'insertarNarracion':
-			insertarNarracion();
-			break;
-		case 'login':
-			login();
-			break;
-		case 'getProvincias':
-			getProvincias();
-			break;
-		case 'uploadImg':
-			uploadImg();
-			break;
-		case 'getInfoClub':
-			getInfoClub();
-			break;
-		case 'getInfoEquipo':
-			getInfoEquipo();
-			break;
-		case 'getPartidos':
-			getPartidos();
-			break;
-		default:
-			echo 'Parametro action erroneo';
-			break;
-	}
+$action = $_GET['action'];
 
-	//funcion que inserta un nuevo club en la base de datos
-	function insertarClub()
-	{
+switch ($action) {
+    case 'insertarClub':
+        insertarClub();
+        break;
+    case 'insertarEquipo':
+        insertarEquipo();
+        break;
+    case 'insertarJugador':
+        insertarJugador();
+        break;
+    case 'insertarPartido':
+        insertarPartido();
+        break;
+    case 'insertarNarracion':
+        insertarNarracion();
+        break;
+    case 'login':
+        login();
+        break;
+    case 'getProvincias':
+        getProvincias();
+        break;
+    case 'uploadImg':
+        uploadImg();
+        break;
+    case 'getInfoClub':
+        getInfoClub();
+        break;
+    case 'getInfoEquipo':
+        getInfoEquipo();
+        break;
+    case 'getPartidos':
+        getPartidos();
+        break;
+    case 'getJugadores':
+        getJugadores();
+        break;
+    default:
+        echo 'Parametro action erroneo';
+        break;
+}
 
-		$encodedData = file_get_contents('php://input');
+//funcion que inserta un nuevo club en la base de datos
+function insertarClub()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $email = $decodedData['email'];
+    $pass = password_hash($decodedData['pass'], PASSWORD_BCRYPT);
+    $nombre = $decodedData['nombre'];
+    //$escudo = $decodedData['escudo'];
+    //$id_subscripcion = $decodedData['id_subscripcion'];
+    //$fecha_ini_subs = $decodedData['fecha_ini_subs'];
+    //$fecha_fin_subs = $decodedData['fecha_fin_subs'];
+    //$id_provincia = $decodedData['id_provincia'];
+
+    $escudo = 'defaultEscudo.png';
+    $id_subscripcion = 1;
+    $fecha_ini_subs = '2021-03-01';
+    $fecha_fin_subs = '2021-03-01';
+    $id_provincia = 1;
+
+    $query = "INSERT into `CLUBES` (`email`, `pass`, `nombre`, `escudo`, `id_subscripcion`, `fecha_ini_subs`, `fecha_fin_subs`, `id_provincia`) VALUES ('$email', '$pass', '$nombre', '$escudo', $id_subscripcion, '$fecha_ini_subs', '$fecha_fin_subs', $id_provincia)";
+
+    //echo $query;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Club introducido con exito.';
+    } else {
+        $mensaje = 'Error al introducir el club.';
+    }
+
+    $respuesta[] = ['Mensaje' => $mensaje];
+
+    echo json_encode($respuesta);
+}
+
+//funcion que inserta un nuevo equipo en el club correspondiente
+function insertarEquipo()
+{
+    $id_club = $_POST['id_club'];
+    $nombre = $_POST['nombre'];
+    $estadio = $_POST['estadio'];
+    $minutos_partido = $_POST['minutos_partido'];
+
+    $query = "INSERT INTO `EQUIPOS` (`id_club`, `nombre`, `estadio`, `minutos_partido`) VALUES ($id_club, '$nombre', '$estadio', $minutos_partido);";
+
+    //echo $query;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Equipo introducido con exito.';
+    } else {
+        $mensaje = 'Error al introducir el equipo.';
+    }
+
+    $respuesta[] = ['Mensaje' => $mensaje];
+    echo json_encode($respuesta);
+}
+
+//funcion que inserta un jugador en el equipo correspondiente
+function insertarJugador()
+{
+    $id_equipo = $_POST['id_equipo'];
+    $nombre = $_POST['nombre'];
+    $dorsal = $_POST['dorsal'];
+    $foto = $_POST['foto'];
+
+    $query = "INSERT INTO `JUGADORES` (`id_equipo`, `nombre`, `dorsal`, `minutos_partido`) VALUES ($id_equipo, '$nombre', $dorsal, '$foto');";
+
+    //echo $query;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Jugador introducido con exito.';
+    } else {
+        $mensaje = 'Error al introducir el jugador.';
+    }
+
+    $respuesta[] = ['Mensaje' => $mensaje];
+    echo json_encode($respuesta);
+}
+
+function insertarPartido()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_equipo = $decodedData['id_equipo'];
+    $local = $decodedData['local'];
+    $estadio = $decodedData['estadio'];
+    $minutos_partido = $decodedData['minutos_partido'];
+    $nombre_rival = $decodedData['nombre_rival'];
+    $escudo_rival = $decodedData['escudo_rival'];
+    $fecha_hora = $decodedData['fecha_hora'];
+
+    $goles_local = 0;
+    $goles_visitante = 0;
+    $resultado = '-';
+
+    $query = "INSERT INTO `PARTIDOS` (`id_equipo`, `local`, `estadio`, `minutos_partido`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`) VALUES ($id_equipo, $local, '$estadio', $minutos_partido, '$nombre_rival', '$escudo_rival', '$fecha_hora', $goles_local, $goles_visitante, '$resultado')";
+
+    //echo $query;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Partido introducido con exito.';
+    } else {
+        $mensaje = 'Error al introducir el partido.';
+    }
+
+    echo $mensaje;
+}
+
+function insertarNarracion()
+{
+    $id_partido = $_POST['id_partido'];
+    $id_tipo = $_POST['id_tipo'];
+    $comentario = $_POST['comentario'];
+    $id_jugador1 = $_POST['id_jugador1'];
+    $id_jugador2 = $_POST['id_jugador2'];
+
+    $query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `id_jugador1`, `id_jugador2`) VALUES ($id_partido, $id_tipo, '$comentario', id_jugador1, id_jugador2);";
+
+    //echo $query;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Narracion introducida con exito.';
+    } else {
+        $mensaje = 'Error al introducir la narracion.';
+    }
+
+    $respuesta[] = ['Mensaje' => $mensaje];
+    echo json_encode($respuesta);
+}
+
+function login()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $email = $decodedData['email'];
+    $pass = $decodedData['pass'];
+
+    $query = "SELECT `id_club`, `pass` FROM `CLUBES` WHERE `email` = '$email'";
+
+    $result = $GLOBALS['conexion']->query($query);
+    if ($result->num_rows > 0) {
+        $row = mysqli_fetch_array($result);
+        if (password_verify($pass, $row['pass'])) {
+            $return = $row['id_club'];
+        } else {
+            $return = 0;
+        }
+    } else {
+        $return = 0;
+    }
+
+    echo $return;
+}
+
+function getProvincias()
+{
+    $query = 'SELECT * FROM `PROVINCIAS` ORDER BY provincia';
+
+    $arr_provincias = [];
+    $result = $GLOBALS['conexion']->query($query);
+    if ($result->num_rows > 0) {
+        while ($row = mysqli_fetch_array($result)) {
+            $arr_provincias[$row['id_provincia']] = $row['provincia'];
+            //echo $row['provincia'];
+        }
+
+        echo json_encode($arr_provincias, JSON_UNESCAPED_UNICODE);
+    }
+}
+
+function uploadImg()
+{
+    /*$encodedData = file_get_contents('php://input');
 		$decodedData = json_decode($encodedData, true);
-
-		$email = $decodedData['email'];
-		$pass = password_hash($decodedData['pass'], PASSWORD_BCRYPT);
-		$nombre = $decodedData['nombre'];
-		//$escudo = $decodedData['escudo'];
-		//$id_subscripcion = $decodedData['id_subscripcion'];
-		//$fecha_ini_subs = $decodedData['fecha_ini_subs'];
-		//$fecha_fin_subs = $decodedData['fecha_fin_subs'];
-		//$id_provincia = $decodedData['id_provincia'];
-	
-		$escudo = "defaultEscudo.png";
-		$id_subscripcion = 1;
-		$fecha_ini_subs = "2021-03-01";
-		$fecha_fin_subs = "2021-03-01";
-		$id_provincia = 1;
-
-		$query = "INSERT into `CLUBES` (`email`, `pass`, `nombre`, `escudo`, `id_subscripcion`, `fecha_ini_subs`, `fecha_fin_subs`, `id_provincia`) VALUES ('$email', '$pass', '$nombre', '$escudo', $id_subscripcion, '$fecha_ini_subs', '$fecha_fin_subs', $id_provincia)";
-
-		//echo $query;
-
-		$resultado = mysqli_query($GLOBALS["conexion"], $query);
-
-		if($resultado)
-		{
-			$mensaje = "Club introducido con exito.";
-		}
-		else
-		{
-			$mensaje = "Error al introducir el club.";
-		}
-
-		$respuesta[] = array("Mensaje"=>$mensaje);
-
-		echo json_encode($respuesta);
-	}
-
-	//funcion que inserta un nuevo equipo en el club correspondiente
-	function insertarEquipo()
-	{
-		$id_club = $_POST['id_club'];
-		$nombre = $_POST['nombre'];
-		$estadio = $_POST['estadio'];
-		$minutos_partido = $_POST['minutos_partido'];
-
-		$query = "INSERT INTO `EQUIPOS` (`id_club`, `nombre`, `estadio`, `minutos_partido`) VALUES ($id_club, '$nombre', '$estadio', $minutos_partido);";
-
-		//echo $query;
-
-		$resultado = mysqli_query($GLOBALS["conexion"], $query);
-
-		if($resultado)
-		{
-			$mensaje = "Equipo introducido con exito.";
-		}
-		else
-		{
-			$mensaje = "Error al introducir el equipo.";
-		}
-
-		$respuesta[] = array("Mensaje"=>$mensaje);
-		echo json_encode($respuesta);
-	}
-
-	//funcion que inserta un jugador en el equipo correspondiente
-	function insertarJugador()
-	{
-		$id_equipo = $_POST['id_equipo'];
-		$nombre = $_POST['nombre'];
-		$dorsal = $_POST['dorsal'];
-		$foto = $_POST['foto'];
-
-		$query = "INSERT INTO `JUGADORES` (`id_equipo`, `nombre`, `dorsal`, `minutos_partido`) VALUES ($id_equipo, '$nombre', $dorsal, '$foto');";
-
-		//echo $query;
-
-		$resultado = mysqli_query($GLOBALS["conexion"], $query);
-
-		if($resultado)
-		{
-			$mensaje = "Jugador introducido con exito.";
-		}
-		else
-		{
-			$mensaje = "Error al introducir el jugador.";
-		}
-
-		$respuesta[] = array("Mensaje"=>$mensaje);
-		echo json_encode($respuesta);
-
-	}
-
-	function insertarPartido()
-	{
-
-		$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
-
-		$id_equipo = $decodedData['id_equipo'];
-		$local = $decodedData['local'];
-		$estadio = $decodedData['estadio'];
-		$minutos_partido = $decodedData['minutos_partido'];
-		$nombre_rival = $decodedData['nombre_rival'];
-		$escudo_rival = $decodedData['escudo_rival'];
-		$fecha_hora = $decodedData['fecha_hora'];
-		
-		$goles_local = 0;
-		$goles_visitante = 0;
-		$resultado = "-";
-
-		$query = "INSERT INTO `PARTIDOS` (`id_equipo`, `local`, `estadio`, `minutos_partido`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`) VALUES ($id_equipo, $local, '$estadio', $minutos_partido, '$nombre_rival', '$escudo_rival', '$fecha_hora', $goles_local, $goles_visitante, '$resultado')";
-
-		//echo $query;
-
-		$resultado = mysqli_query($GLOBALS["conexion"], $query);
-
-		if($resultado)
-		{
-			$mensaje = "Partido introducido con exito.";
-		}
-		else
-		{
-			$mensaje = "Error al introducir el partido.";
-		}
-
-		echo $mensaje;
-	}
-
-	function insertarNarracion()
-	{
-		$id_partido = $_POST['id_partido'];
-		$id_tipo = $_POST['id_tipo'];
-		$comentario = $_POST['comentario'];
-		$id_jugador1 = $_POST['id_jugador1'];
-		$id_jugador2 = $_POST['id_jugador2'];
-
-		$query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `id_jugador1`, `id_jugador2`) VALUES ($id_partido, $id_tipo, '$comentario', id_jugador1, id_jugador2);";
-
-		//echo $query;
-
-		$resultado = mysqli_query($GLOBALS["conexion"], $query);
-
-		if($resultado)
-		{
-			$mensaje = "Narracion introducida con exito.";
-		}
-		else
-		{
-			$mensaje = "Error al introducir la narracion.";
-		}
-
-		$respuesta[] = array("Mensaje"=>$mensaje);
-		echo json_encode($respuesta);
-	}
-
-	function login()
-	{	
-		$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
-
-		$email = $decodedData['email'];
-		$pass = $decodedData['pass'];
-
-		$query = "SELECT `id_club`, `pass` FROM `CLUBES` WHERE `email` = '$email'";
-
-		$result = $GLOBALS["conexion"]->query($query);
-		if($result->num_rows > 0)
-		{
-			$row = mysqli_fetch_array($result);
-			if(password_verify($pass, $row['pass']))
-			{
-				$return = $row['id_club'];
-			}
-			else
-			{
-				$return = 0;
-			}
-		}
-		else
-		{
-			$return = 0;
-		}
-
-		echo ($return);
-	}
-
-	function getProvincias()
-	{
-		$query = "SELECT * FROM `PROVINCIAS` ORDER BY provincia";
-
-		$arr_provincias = array();
-		$result = $GLOBALS["conexion"]->query($query);
-		if($result->num_rows > 0)
-		{
-			while($row = mysqli_fetch_array($result)){
-				$arr_provincias[$row['id_provincia']] = $row['provincia'];
-				//echo $row['provincia'];
-			}
-
-			echo json_encode($arr_provincias, JSON_UNESCAPED_UNICODE);
-		}
-
-	}
-
-	function uploadImg()
-	{
-		$encodedData = file_get_contents('php://input');
-		/*$decodedData = json_decode($encodedData, true);
 
 		$number = 1;
 
-		$img = $decodedData['image'];*/
+		$img = $decodedData['image'];
 
 		echo json_encode($encodedData);
-		/*$shuffledid = str_shuffle(124243543534543534);
+		$shuffledid = str_shuffle(124243543534543534);
 		$url = $shuffledid;
 
 		$path = __DIR__ . "/img/escudo_". $number .".png";
@@ -285,102 +262,135 @@
 		imagedestroy($pic);
 
 		echo json_encode("done");*/
-	}
+}
 
-	function getInfoClub()
-	{
-		$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
+function getInfoClub()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
 
-		$id_club = $decodedData['idclub'];
+    $id_club = $decodedData['idclub'];
 
-		$query = "SELECT `nombre`, `escudo` FROM `CLUBES` WHERE `id_club` = " . $id_club;
+    $query =
+        'SELECT `nombre`, `escudo` FROM `CLUBES` WHERE `id_club` = ' . $id_club;
 
-		$result = $GLOBALS["conexion"]->query($query);
-		$returnArray = array();
+    $result = $GLOBALS['conexion']->query($query);
+    $returnArray = [];
 
-		while($row = mysqli_fetch_array($result))
-		{
-			$returnArray["nombre"] = $row["nombre"];
-			$returnArray["escudo"] = $row["escudo"];		
-		}
-		
-		$equipos = getEquipos($id_club);
+    while ($row = mysqli_fetch_array($result)) {
+        $returnArray['nombre'] = $row['nombre'];
+        $returnArray['escudo'] = $row['escudo'];
+    }
 
-		$returnArray["equipos"] = $equipos;
+    $equipos = getEquipos($id_club);
 
-		echo json_encode($returnArray);
-	}
+    $returnArray['equipos'] = $equipos;
 
-	function getInfoEquipo()
-	{
-		$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
+    echo json_encode($returnArray);
+}
 
-		$id_equipo = $decodedData['id_equipo'];
+function getInfoEquipo()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
 
-		$query = "SELECT `estadio`, `minutos_partido` FROM `EQUIPOS` WHERE `id_equipo` = " . $id_equipo;
+    $id_equipo = $decodedData['id_equipo'];
 
-		$result = $GLOBALS["conexion"]->query($query);
-		$returnArray = array();
+    $query =
+        'SELECT `estadio`, `minutos_partido` FROM `EQUIPOS` WHERE `id_equipo` = ' .
+        $id_equipo;
 
-		while($row = mysqli_fetch_array($result))
-		{
-			$returnArray["estadio"] = $row["estadio"];
-			$returnArray["minutos_partido"] = $row["minutos_partido"];		
-		}
-	
-		echo json_encode($returnArray);
-	}
+    $result = $GLOBALS['conexion']->query($query);
+    $returnArray = [];
 
-	function getEquipos($id_club)
-	{
-		$query = "SELECT `id_equipo`, `nombre` FROM `EQUIPOS` WHERE `id_club` = " . $id_club . "ORDER BY `nombre`";
+    while ($row = mysqli_fetch_array($result)) {
+        $returnArray['estadio'] = $row['estadio'];
+        $returnArray['minutos_partido'] = $row['minutos_partido'];
+    }
 
-		$result = $GLOBALS["conexion"]->query($query);
-		$arrayEquipos = array();
+    echo json_encode($returnArray);
+}
 
-		while($row = mysqli_fetch_assoc($result))
-		{
-			$arrayEquipos[] = $row;	
-		}
+function getEquipos($id_club)
+{
+    $query =
+        'SELECT `id_equipo`, `nombre` FROM `EQUIPOS` WHERE `id_club` = ' .
+        $id_club .
+        'ORDER BY `nombre`';
 
-		return $arrayEquipos;
-	}
+    $result = $GLOBALS['conexion']->query($query);
+    $arrayEquipos = [];
 
-	function getPartidos()
-	{
-		$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $arrayEquipos[] = $row;
+    }
 
-		$id_equipo = $decodedData['id_equipo'];
+    return $arrayEquipos;
+}
 
-		$query = "SELECT `id_partido`, `local`, p.`estadio`, p.`minutos_partido`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`, e.`nombre`, `escudo` FROM `PARTIDOS` p  LEFT JOIN `EQUIPOS` `e` on e.`id_equipo` = p.`id_equipo` LEFT JOIN `CLUBES` `c` on c.`id_club` = e.`id_club` WHERE p.`id_equipo` = " . $id_equipo . " ORDER BY `fecha_hora` DESC";
-	
-		$result = $GLOBALS["conexion"]->query($query);
+function getPartidos()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
 
-		$arrayPartido = array();
-		$returnArray = array();
+    $id_equipo = $decodedData['id_equipo'];
 
-		while($row = mysqli_fetch_assoc($result))
-		{
-			$arrayPartido["id_partido"] = $row["id_partido"];
-			$arrayPartido["local"] = $row["local"];
-			$arrayPartido["estadio"] = $row["estadio"];
-			$arrayPartido["minutos_partido"] = $row["minutos_partido"];
-			$arrayPartido["nombre_rival"] = $row["nombre_rival"];
-			$arrayPartido["escudo_rival"] = $row["escudo_rival"];			
-			$arrayPartido["fecha_hora"] = $row["fecha_hora"];
-			$arrayPartido["goles_local"] = $row["goles_local"];
-			$arrayPartido["goles_visitante"] = $row["goles_visitante"];		
-			$arrayPartido["resultado"] = $row["resultado"];
-			$arrayPartido["nombre"] = $row["nombre"];		
-			$arrayPartido["escudo"] = $row["escudo"];
+    $query =
+        'SELECT `id_partido`, `local`, p.`estadio`, p.`minutos_partido`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`, e.`nombre`, `escudo` FROM `PARTIDOS` p  LEFT JOIN `EQUIPOS` `e` on e.`id_equipo` = p.`id_equipo` LEFT JOIN `CLUBES` `c` on c.`id_club` = e.`id_club` WHERE p.`id_equipo` = ' .
+        $id_equipo .
+        ' ORDER BY `fecha_hora` DESC';
 
+    $result = $GLOBALS['conexion']->query($query);
 
-			$returnArray[] = $arrayPartido;
-		}
+    $arrayPartido = [];
+    $returnArray = [];
 
-		echo json_encode($returnArray);
-	}
+    while ($row = mysqli_fetch_assoc($result)) {
+        $arrayPartido['id_partido'] = $row['id_partido'];
+        $arrayPartido['local'] = $row['local'];
+        $arrayPartido['estadio'] = $row['estadio'];
+        $arrayPartido['minutos_partido'] = $row['minutos_partido'];
+        $arrayPartido['nombre_rival'] = $row['nombre_rival'];
+        $arrayPartido['escudo_rival'] = $row['escudo_rival'];
+        $arrayPartido['fecha_hora'] = $row['fecha_hora'];
+        $arrayPartido['goles_local'] = $row['goles_local'];
+        $arrayPartido['goles_visitante'] = $row['goles_visitante'];
+        $arrayPartido['resultado'] = $row['resultado'];
+        $arrayPartido['nombre'] = $row['nombre'];
+        $arrayPartido['escudo'] = $row['escudo'];
+
+        $returnArray[] = $arrayPartido;
+    }
+
+    echo json_encode($returnArray);
+}
+
+function getJugadores()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_equipo = $decodedData['id_equipo'];
+
+    $query =
+        'SELECT * FROM `JUGADORES` WHERE `id_equipo` = ' .
+        $id_equipo .
+        '  ORDER BY `dorsal` ASC';
+
+    $result = $GLOBALS['conexion']->query($query);
+
+    $arrayJugador = [];
+    $returnArray = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $arrayJugador['id_jugador'] = $row['id_jugador'];
+        $arrayJugador['nombre'] = $row['nombre'];
+        $arrayJugador['dorsal'] = $row['dorsal'];
+        $arrayJugador['foto'] = $row['foto'];
+
+        $returnArray[] = $arrayJugador;
+    }
+
+    echo json_encode($returnArray);
+}
 ?> 

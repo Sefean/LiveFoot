@@ -165,7 +165,7 @@ export default function AddMatch({route, navigation}) {
           </ScrollView>
           <View style={styles.buttonContainer}>
               <TouchableHighlight onPress={saveMatch} style={styles.buttons} underlayColor={colors.lightgreen}>    
-                  <View style={styles.viewButton}><Text style={styles.text}>GUARDAR</Text></View>
+                  <View style={styles.viewButton}><Text style={styles.textButton}>GUARDAR</Text></View>
               </TouchableHighlight>
           </View>
       </SafeAreaView>
@@ -237,5 +237,10 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems:'center',
         justifyContent:'center',
+    },
+    textButton: 
+    {
+      fontSize: 16,
+      fontWeight: 'bold',
     }
   });
