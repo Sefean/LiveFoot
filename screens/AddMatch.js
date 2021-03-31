@@ -18,8 +18,8 @@ export default function AddMatch({route, navigation}) {
   const paramsMinutos_partido = params.minutos_partido;
   
   const [localVisitante, setLocalVisitante] = useState(1);
-  const [estadio, setEstadio] = useState("");
-  const [duracion, setDuracion] = useState("");
+  const [estadio, setEstadio] = useState(paramsEstadio);
+  const [duracion, setDuracion] = useState(paramsMinutos_partido);
   const [rival, setRival] = useState("");
 
   //datepicker
@@ -91,6 +91,11 @@ export default function AddMatch({route, navigation}) {
   const saveMatch = () =>
   {
     var escudo = "esc_0.png";
+
+    console.log(dateSQL);
+    console.log(estadio);
+    console.log(duracion);
+    console.log(rival);
 
     if(dateSQL && estadio && duracion && rival)
     {

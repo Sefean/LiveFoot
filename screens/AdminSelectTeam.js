@@ -43,11 +43,9 @@ export default function AdminSelectTeam({route, navigation}) {
                     renderItem={({item}) => 
                     (
                         <TouchableOpacity onPress={ () => equipoSeleccionado(item.id_equipo, item.nombre)}>
-
                             <View style={styles.equiposView}>
                                 <Text style={styles.equiposText}>{item.nombre}</Text>
                             </View>
-
                         </TouchableOpacity>
                     )}keyExtractor={(item, index) => index.toString()}
                 />
