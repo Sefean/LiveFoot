@@ -15,75 +15,53 @@ export default function Registro({navigation}) {
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
     const [pass2, setPass2] = useState("");
-    const [id_provincia, setIdProvincia] = useState("");
     const [escudo, setEscudo] = useState("");
-
-    const [provinciaSeleccionada, setProvinciaSeleccionada] = useState();
-
-    const [arrayProvincias, setArrayProvincias] = useState();
 
     const [image, setImage] = useState(null);
 
-    //se llama antes de renderizar
-    useEffect(() => {
-        let apiUrl = "http://10.0.2.2:80/LiveFoot/api.php?action=getProvincias";
-
-        fetch(apiUrl).then((response) => response.json()).then((responseJson) => 
-        {
-            let dataSource = [];
-            
-            Object.values(responseJson).forEach(item => {
-                dataSource = dataSource.concat(item);
-                //console.log(item);
-            });
-
-            //https://stackoverflow.com/questions/53824116/react-hooks-usestate-array
-            
-            //console.log(dataSource);
-            setArrayProvincias({dataSource})
+    const createFormData = (img, body) => {
+        const data = new FormData();
+      
+        data.append('photo', {
+          name: img.fileName,
+          type: img.type,
+          uri:
+            Platform.OS === 'android' ? img.uri : img.uri.replace('file://', ''),
         });
+      
+        Object.keys(body).forEach((key) => {
+          data.append(key, body[key]);
+        });
+      
+        return data;
+    };
 
-        /*for (var i = 0; i < arrayProvincias.length; i++)
-        {
-            console.log(arrayProvincias[i]);
-        }*/
-       
-    });
-
-    /*const getProvincias = () =>
-    {
-        let apiUrl = "http://10.0.2.2:80/LiveFoot/api.php?action=insertar_club";
-        let headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        };
-
-    }*/
-
-    const uploadImg = (result) => 
+    const uploadImg = (img) => 
     {
         const formData = new FormData();
         formData.append('image', {
-            uri: result.uri,
+            uri: img.uri,
             name: 'my_photo.png',
             type: 'image/png'
           });
           formData.append('Content-Type', 'image/png');
 
-          fetch('http://10.0.2.2:80/LiveFoot/api.php?action=uploadImg',{
+          fetch(cons.apiUrl + "/api.php?action=uploadImg",{
               method: 'POST',
               headers: {
                   'Content-Type': 'multipart/form-data',
                 },
-                body: JSON.stringify(formData)
+                body: formData
             })
-            .then((response) => response.json())
-            .then((responseJson) => {
-               console.log(responseJson);     
+            .then((response) => response)
+            .then((response) => {
+                console.log('a');  
+               console.log(response);     
               })
               .catch((error) => {
+                console.log('b'); 
                   console.log(error);
-            });
+                });       
     };
 
     const pickImage = async () => 
@@ -96,7 +74,11 @@ export default function Registro({navigation}) {
         });
 
         if (!result.cancelled) {
+            
+            //establecemos la imagen en la pantalla
             setImage(result.uri);
+
+            //mandamos la imagen para subir
             uploadImg(result);
         }
     };
@@ -104,7 +86,7 @@ export default function Registro({navigation}) {
     const Registrar = () =>
     {
         //comprobamos que ha rellenado todos los campos
-        if(nombre && email && pass && pass2 && id_provincia)
+        if(nombre && email && pass && pass2)
         {
             if(pass != pass2)
             {
@@ -123,7 +105,6 @@ export default function Registro({navigation}) {
                     nombre: nombre,
                     email: email,
                     pass: pass,
-                    id_provincia: id_provincia,
                     escudo: escudo
                 };
 
@@ -153,9 +134,8 @@ export default function Registro({navigation}) {
                 <TextInput style={styles.textInput} placeholder={"Email"} placeholderTextColor={"#777777"} onChangeText={text => setEmail(text)} />
                 <TextInput style={styles.textInput} placeholder={"Contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass(text)}/>
                 <TextInput style={styles.textInput} placeholder={"Repite contraseña"} placeholderTextColor={"#777777"} secureTextEntry={true} onChangeText={text => setPass2(text)}/>
-                <TextInput style={styles.textInput} placeholder={"Provincia"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setIdProvincia(text)}/>
                 <Button title={"Elegir escudo"} onPress={pickImage}/>
-            {/*{image  && <Image style={styles.escudo} source={{ uri: image }}/>}*/}
+            {<Image style={styles.escudo} source={{ uri: image }}/>}
 
                 <Image style={styles.escudo} source={{uri: cons.apiUrl + '/img/escudoDefault.png'}} />
                 
