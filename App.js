@@ -12,6 +12,7 @@ import AdminTeam from './screens/AdminTeam.js';
 import AddMatch from './screens/AddMatch.js';
 import MatchHistory from './screens/MatchHistory.js';
 import Players from './screens/Players.js';
+import AdminMatch from './screens/AdminMatch.js';
 
 const Stack = createStackNavigator();
 
@@ -59,6 +60,11 @@ export default function App() {
           name = "Players"
           component = {Players}
           options={{title:'JUGADORES'}}
+        />
+        <Stack.Screen
+          name = "AdminMatch"
+          component = {AdminMatch}
+          options={{title:'PARTIDO'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

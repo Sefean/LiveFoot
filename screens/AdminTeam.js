@@ -100,7 +100,7 @@ export default function AdminTeam({route, navigation}) {
                 <View style={styles.row}>
                     <View style={styles.touchableContainer}>
                         <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('AddMatch')}} >
-                            <Icon size={60}  name="sports-volleyball" style={styles.icon}></Icon>
+                            <Icon size={60}  name="add-circle" style={styles.icon}></Icon>
                             <Text style={styles.buttonText}>CREAR PARTIDO</Text>
                         </TouchableOpacity>
                     </View>
@@ -163,9 +163,13 @@ const styles = StyleSheet.create({
     touchable:
     {
         flex: 1,
-        backgroundColor: colors.lightgreen,
-        padding: 25,
+        paddingTop: 25,
+        paddingBottom: 25,
+        marginTop: 10,
+        marginBottom: 10,
         borderRadius: 25,        
+        backgroundColor: colors.greyWhite,
+        width: 140        
     },
     textInput:
     {
