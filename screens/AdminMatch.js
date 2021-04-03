@@ -16,22 +16,13 @@ function ButtonAction(props)
 {
     let action = props.action;
     let icon = "sports-volleyball";
-    let iconColor = "black";
 
     switch (action) {
-        case 'ANULADO':
+        case 'GOL ANULADO':
             icon = "remove-circle";
             break;
         case 'CAMBIO':
             icon = "compare-arrows";
-            break;
-        case 'AMARILLA':
-            iconColor = "black";
-            icon = "style";
-            break;
-        case 'ROJA':
-            iconColor = "red";
-            icon = "crop-portrait";
             break;
         case 'COMENTARIO':
             icon = "mode-comment"
@@ -41,7 +32,7 @@ function ButtonAction(props)
     }
     return (
         <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed(action)}>
-            <Icon size={60} color={iconColor} name={icon}></Icon>
+            <Icon size={60} name={icon}></Icon>
             <Text style={styles.buttonText}>{action}</Text>
         </TouchableOpacity>);
 }
@@ -159,7 +150,7 @@ export default function AdminMatch({route, navigation}) {
                     <View style={styles.containerBotonera}>
                         <View style={[styles.botonera,  {paddingRight: 40}]}>
                             <ButtonAction action={"GOL"}/>
-                            <ButtonAction action={"ANULADO"}/>
+                            <ButtonAction action={"GOL ANULADO"}/>
                             <ButtonAction action={"CAMBIO"}/>
                             <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA")}>
                                 <Image 
@@ -173,7 +164,7 @@ export default function AdminMatch({route, navigation}) {
 
                         <View style={[styles.botonera,  {paddingLeft: 40}]}>
                             <ButtonAction action={"GOL"}/>
-                            <ButtonAction action={"ANULADO"}/>
+                            <ButtonAction action={"GOL ANULADO"}/>
                             <ButtonAction action={"CAMBIO"}/>
                             <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA")}>
                                 <Image 
