@@ -1,15 +1,26 @@
 import React, {useEffect} from 'react';
 import { ScrollView } from 'react-native';
-import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button } from 'react-native';
+import {StyleSheet, Text, TextInput, Alert, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button } from 'react-native';
 import { Icon } from "react-native-elements";
 import { useState } from 'react/cjs/react.development';
+import { CountUp } from 'use-count-up';
 
 import colors from '../config/colors';
 import cons from '../config/cons';
 
+import { LogBox } from 'react-native';
+
 function buttonPressed(action)
 {
-    console.log(action);
+    switch (action) {
+        case "GOL":
+            
+            break;
+    
+        default:
+            Alert.alert("Algo raro ha pasado.");
+            break;
+    }
 }
 
 function ButtonAction(props)
@@ -70,9 +81,7 @@ function CabeceraView(props)
     return (
         
         <View style={{height: 150}}>
-            <View style={styles.firstRow}>
-                <Text style={styles.cabeceraPartido}>{partido.estadio} | {fecha} | {hora}</Text>
-            </View>
+        
             <View style={styles.secondRow}>
 
                 <View style={styles.columnSide}>
@@ -83,7 +92,6 @@ function CabeceraView(props)
                 </View>
                 
                 <View style={styles.columnCenter}>
-                    <Text style={styles.tiempoTexto}>{props.time}</Text>
                     <Text style={styles.resultado}>{partido.goles_local} - {partido.goles_visitante}</Text>
                 </View>
                 
@@ -103,13 +111,76 @@ export default function AdminMatch({route, navigation}) {
     const params = route.params;
     const partido = params.partido;
 
-    const [timerCount, setTimer] = useState(partido.minutos_partido);
     const [starTimer, setStart] = useState(false);
+    const [duration, setDuration] = useState(partido.minutos_partido);
+    const [databaseTime, setDatabaseTime] = useState(partido.minuto_actual);
 
-    const iniciarTimer = () =>
+    //para que warnings no salgan en pantalla
+    LogBox.ignoreAllLogs();
+
+    const changeTimer = (iniciar) =>
     {
-        setStart(true);
+        setStart(iniciar);
     }
+
+    const actualizarTiempo = (minutoActual) =>
+    {
+        //Warning: Cannot update a component from inside the function body of a different component. 
+        setDatabaseTime(parseInt(databaseTime) + 1);
+        
+        let apiUrl = cons.apiUrl + "/api.php?action=updateMinutoActual";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_partido: partido.id_partido,
+            minuto_actual: minutoActual
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                console.log(response);  
+                   
+            }
+        })
+        .catch((error)=>{
+            console.log(error.message);
+            console.log("Error", "Error al intentar actualizar tiempo en bse de datos.");
+        })
+        
+    }
+
+    /*const getMinutoActual = () =>
+    {
+        let apiUrl = cons.apiUrl + "/api.php?action=getMinutoActual";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_partido: partido.id_partido,
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                console.log("minuto actual es : " + response);
+                setPhpTime(response);
+            }
+        })
+        .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al iniciar el crono.");})
+
+    }*/
 
     useEffect(() => {
 
@@ -121,28 +192,38 @@ export default function AdminMatch({route, navigation}) {
         }
 
         navigation.setOptions({ title: titulo});
-
-        //timer
-        
-        if(timerCount > partido.minutos_partido/2)
-        {
-            let interval = setInterval(() => {
-                setTimer(lastTimerCount => {
-                    lastTimerCount <= 1 && clearInterval(interval)
-                    return lastTimerCount - 1
-                })
-            }, 100) //1000*60
-            //cleanup the interval on complete
-            return () => {clearInterval(interval)}
-        }
-
-        
+        console.log(databaseTime);
     });
 
     return (
         <SafeAreaView style={styles.mainContainer}>
             <View style={styles.firstContainer}>
-                <CabeceraView partido={partido} time={timerCount}/>
+            <Text style={styles.tiempo}>
+                    <CountUp 
+                        isCounting={true}
+                        start={parseInt(databaseTime * 60)}
+                        end={6000}
+                        duration={6000}
+                        easing="linear"
+                        formatter={(val) => {
+                            if(Math.trunc(val/60) > databaseTime)
+                            {
+                                //detectamos cuando pasa 1 min
+                                actualizarTiempo(Math.trunc(val/60));                                  
+                            }
+
+                            val = Math.trunc(val/60);
+                            return ("0" + val).slice(-2);
+                        }}
+                    />
+                </Text>
+                <CabeceraView partido={partido} />
+                
+
+                
+               
+                <Button style={{marginBottom: 5}} title="start" onPress={ () => changeTimer(true)}></Button>
+                <Button style={{padding: 5}} title="stop" onPress={ () => changeTimer(false)}></Button>
             </View>
 
             <View style={styles.secondContainer}>
@@ -231,7 +312,13 @@ const styles = StyleSheet.create({
     {
         fontSize: 50,
         fontWeight: 'bold',
-        paddingBottom: 20
+        paddingBottom: 40
+    },
+    tiempo:
+    {
+        fontSize: 30,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
     nombreEquipoTexto:
     {
@@ -246,11 +333,10 @@ const styles = StyleSheet.create({
     },
     escudo:
     {   
-        flex: 1,
         resizeMode: 'contain',
         width: 75,
         height: 75,
-        margin: 5
+        margin: 10,
     },
     containerBotonera:
     {

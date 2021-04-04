@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     },
     nombreEquipoTexto:
     {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         paddingBottom: 20       
     },
