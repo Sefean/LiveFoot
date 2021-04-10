@@ -10,47 +10,12 @@ import cons from '../config/cons';
 
 import { LogBox } from 'react-native';
 
-function buttonPressed(action)
-{
-    switch (action) {
-        case "GOL":
-            
-            break;
-    
-        default:
-            Alert.alert("Algo raro ha pasado.");
-            break;
-    }
-}
-
-function ButtonAction(props)
-{
-    let action = props.action;
-    let icon = "sports-volleyball";
-
-    switch (action) {
-        case 'GOL ANULADO':
-            icon = "remove-circle";
-            break;
-        case 'CAMBIO':
-            icon = "compare-arrows";
-            break;
-        case 'COMENTARIO':
-            icon = "mode-comment"
-            break;
-        default:
-            break;
-    }
-    return (
-        <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed(action)}>
-            <Icon size={60} name={icon}></Icon>
-            <Text style={styles.buttonText}>{action}</Text>
-        </TouchableOpacity>);
-}
-
 function CabeceraView(props)
 {
     let partido = props.partido;
+
+    let golesLocal = props.golesLocal;
+    let golesVisitante = props.golesVisitante;
 
     let fecha = new Date(partido.fecha_hora.substring(0,10));
     
@@ -92,7 +57,7 @@ function CabeceraView(props)
                 </View>
                 
                 <View style={styles.columnCenter}>
-                    <Text style={styles.resultado}>{partido.goles_local} - {partido.goles_visitante}</Text>
+                    <Text style={styles.resultado}>{golesLocal} - {golesVisitante}</Text>
                 </View>
                 
                 <View style={styles.columnSide}>
@@ -110,19 +75,105 @@ export default function AdminMatch({route, navigation}) {
     
     const params = route.params;
     const partido = params.partido;
+    const jugadores = params.jugadores;
 
     const [starTimer, setStart] = useState(false);
     const [duration, setDuration] = useState(partido.minutos_partido);
     const [databaseTime, setDatabaseTime] = useState(partido.minuto_actual);
+    const [minutoInicial, setMinutoInicial] = useState(partido.minuto_actual);
+
+    const [golesLocal, setGolesLocal] = useState(partido.goles_local);
+    const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante);
 
     //para que warnings no salgan en pantalla
     LogBox.ignoreAllLogs();
+
+    const buttonPressed = (action, navigation, jugadores, partido, equipo) =>
+    {
+        if(partido.local == equipo)
+        {
+            //nosotros
+            switch (action) {
+                case "GOL":
+                    if(partido.local == 1)
+                    {
+                        gol(true);
+                        setGolesLocal(parseInt(golesLocal) + 1);
+                    }
+                    else
+                    {
+                        gol(false);
+                        setGolesVisitante(parseInt(golesVisitante) + 1);
+                    }
+
+                    navigation.navigate("SelectPlayerGoal", {jugadores: jugadores, partido: partido});
+                    break;
+            
+                default:
+                    //console.log(jugadores);
+                    break;
+            }
+        }
+        else
+        {
+            //el rival
+            switch (action) {
+                case "GOL":
+                    //sumamos gol
+                    if(partido.local == 0)
+                    {
+                        gol(true);
+                        setGolesLocal(parseInt(golesLocal) + 1);
+                    }
+                    else
+                    {
+                        gol(false);
+                        setGolesVisitante(parseInt(golesVisitante) + 1);
+                    }
+                    break;
+            
+                default:
+                    //console.log(jugadores);
+                    break;
+            }
+        }
+    
+    }
 
     const changeTimer = (iniciar) =>
     {
         setStart(iniciar);
     }
 
+    const gol = (local) =>
+    {
+        let apiUrl = cons.apiUrl + "/api.php?action=gol";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_partido: partido.id_partido,
+            local: local
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                console.log(response);
+            }
+        })
+        .catch((error)=>{
+            console.log(error.message);
+            console.log("Error", "Error al intentar añadir gol a la base de datos.");
+        });
+    }
+
+    //funcion que controla el tiempo del partido y cada vez que pasa un minuto actualiza la bbdd
     const actualizarTiempo = (minutoActual) =>
     {
         //Warning: Cannot update a component from inside the function body of a different component. 
@@ -145,13 +196,12 @@ export default function AdminMatch({route, navigation}) {
                 
             if(response)
             {
-                console.log(response);  
-                   
+                console.log("Tiempo actualizado a: " + response);  
             }
         })
         .catch((error)=>{
             console.log(error.message);
-            console.log("Error", "Error al intentar actualizar tiempo en bse de datos.");
+            console.log("Error", "Error al intentar actualizar tiempo en base de datos.");
         })
         
     }
@@ -182,8 +232,8 @@ export default function AdminMatch({route, navigation}) {
 
     }*/
 
-    useEffect(() => {
-
+    useEffect(() => 
+    {        
         //cambiamos el nombre de la barra       
         var titulo = partido.nombre + " - " + partido.nombre_rival;
         if(partido.local == 0)
@@ -192,7 +242,6 @@ export default function AdminMatch({route, navigation}) {
         }
 
         navigation.setOptions({ title: titulo});
-        console.log(databaseTime);
     });
 
     return (
@@ -200,10 +249,10 @@ export default function AdminMatch({route, navigation}) {
             <View style={styles.firstContainer}>
             <Text style={styles.tiempo}>
                     <CountUp 
-                        isCounting={true}
-                        start={parseInt(databaseTime * 60)}
-                        end={6000}
-                        duration={6000}
+                        isCounting={starTimer}
+                        start={parseInt(minutoInicial * 60)}
+                        end={600}
+                        duration={600}
                         easing="linear"
                         formatter={(val) => {
                             if(Math.trunc(val/60) > databaseTime)
@@ -217,7 +266,7 @@ export default function AdminMatch({route, navigation}) {
                         }}
                     />
                 </Text>
-                <CabeceraView partido={partido} />
+                <CabeceraView partido={partido} golesLocal={golesLocal} golesVisitante={golesVisitante}/>
                 
 
                 
@@ -230,31 +279,65 @@ export default function AdminMatch({route, navigation}) {
                 <ScrollView>
                     <View style={styles.containerBotonera}>
                         <View style={[styles.botonera,  {paddingRight: 40}]}>
-                            <ButtonAction action={"GOL"}/>
-                            <ButtonAction action={"GOL ANULADO"}/>
-                            <ButtonAction action={"CAMBIO"}/>
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA")}>
+                            {/*botones del equipo local*/}
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL", navigation, jugadores, partido, !!partido.local)}>
+                                <Icon size={60} name="sports-volleyball"></Icon>
+                                <Text style={styles.buttonText}>GOL</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL ANULADO", navigation, jugadores, partido, !!partido.local)}>
+                                <Icon size={60} name="remove-circle"></Icon>
+                                <Text style={styles.buttonText}>GOL ANULADO</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !!partido.local)}>
+                                <Icon size={60} name="compare-arrows"></Icon>
+                                <Text style={styles.buttonText}>CAMBIO</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", {navigation, jugadores})}>
                                 <Image 
                                     style={styles.image}
                                     resizeMode={'contain'}
                                     source={require("../assets/penalty-card.png")}/>
                                 <Text style={styles.buttonText}>TARJETA</Text>
-                            </TouchableOpacity>                        
-                            <ButtonAction action={"COMENTARIO"}/>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !!partido.local)}>
+                                <Icon size={60} name="mode-comment"></Icon>
+                                <Text style={styles.buttonText}>COMENTARIO</Text>
+                            </TouchableOpacity>
                         </View>
 
                         <View style={[styles.botonera,  {paddingLeft: 40}]}>
-                            <ButtonAction action={"GOL"}/>
-                            <ButtonAction action={"GOL ANULADO"}/>
-                            <ButtonAction action={"CAMBIO"}/>
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA")}>
+                            {/*botones del equipo visitante*/}
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL", navigation, jugadores, partido, !partido.local)}>
+                                <Icon size={60} name="sports-volleyball"></Icon>
+                                <Text style={styles.buttonText}>GOL</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL ANULADO", navigation, jugadores, partido, !partido.local)}>
+                                <Icon size={60} name="remove-circle"></Icon>
+                                <Text style={styles.buttonText}>GOL ANULADO</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !partido.local)}>
+                                <Icon size={60} name="compare-arrows"></Icon>
+                                <Text style={styles.buttonText}>CAMBIO</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", {navigation, jugadores})}>
                                 <Image 
                                     style={styles.image}
                                     resizeMode={'contain'}
                                     source={require("../assets/penalty-card.png")}/>
                                 <Text style={styles.buttonText}>TARJETA</Text>
-                            </TouchableOpacity>                        
-                            <ButtonAction action={"COMENTARIO"}/>                            
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !partido.local)}>
+                                <Icon size={60} name="mode-comment"></Icon>
+                                <Text style={styles.buttonText}>COMENTARIO</Text>
+                            </TouchableOpacity>                           
                         </View>
                     </View>
                 </ScrollView>
@@ -310,7 +393,7 @@ const styles = StyleSheet.create({
     },
     resultado:
     {
-        fontSize: 50,
+        fontSize: 40,
         fontWeight: 'bold',
         paddingBottom: 40
     },
@@ -322,7 +405,7 @@ const styles = StyleSheet.create({
     },
     nombreEquipoTexto:
     {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         paddingBottom: 20       
     },

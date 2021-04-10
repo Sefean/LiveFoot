@@ -5,17 +5,18 @@ import { Icon } from "react-native-elements";
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-function partidoSeleccionado(navigation, partido) {
-    navigation.navigate("AdminMatch", {partido: partido})
+function partidoSeleccionado(navigation, partido, jugadores) {
+    navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores})
 }
 
 function PartidoView(props) {
 
-    var background = colors.white;
-    var partido = props.item;
-    var navigation = props.navigation;
+    let background = colors.white;
+    let partido = props.item;
+    let navigation = props.navigation;
+    let jugadores = props.jugadores;
 
-    var fecha = new Date(partido.fecha_hora.substring(0,10));
+    let fecha = new Date(partido.fecha_hora.substring(0,10));
     
     let day = ("0" + fecha.getDate()).slice(-2);
     let month = ("0" + (fecha.getMonth() + 1)).slice(-2)
@@ -23,7 +24,7 @@ function PartidoView(props) {
 
     fecha = day + "/" + month + "/" + year;
 
-    var hora = partido.fecha_hora.substring(11,16);
+    let hora = partido.fecha_hora.substring(11,16);
     
     switch (partido.resultado) {
         case "V":
@@ -57,7 +58,7 @@ function PartidoView(props) {
     }
 
     return (
-    <TouchableOpacity onPress={ () => partidoSeleccionado(navigation, partido)}>
+    <TouchableOpacity onPress={ () => partidoSeleccionado(navigation, partido, jugadores)}>
         <View style={{padding: 10, height: 150, borderTopWidth: 0.2, backgroundColor: background}}>
             <View style={styles.firstRow}>
                 <Text style={styles.cabeceraPartido}>{partido.estadio} | {fecha} | {hora}</Text>
@@ -91,13 +92,14 @@ export default function MatchHistory({route, navigation}) {
     const idEquipo = params.idEquipo;
     const nombreEquipo = params.nombreEquipo;
     const partidos = params.partidos;
+    const jugadores = params.jugadores;
     
     return (
         <SafeAreaView style={styles.equiposView}>
             <ScrollView>
                 {partidos.map((prop, key) => {
                     return (
-                    <PartidoView key={key} item={prop} escudo={escudo} nombre={nombreEquipo} navigation={navigation}/>
+                    <PartidoView key={key} item={prop} escudo={escudo} nombre={nombreEquipo} navigation={navigation} jugadores={jugadores}/>
                     );
                 })}
             </ScrollView>
@@ -139,7 +141,7 @@ const styles = StyleSheet.create({
     },
     resultado:
     {
-        fontSize: 50,
+        fontSize: 40,
         fontWeight: 'bold',
         paddingBottom: 20
     },

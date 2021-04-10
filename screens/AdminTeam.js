@@ -41,11 +41,24 @@ export default function AdminTeam({route, navigation}) {
                 {
                     let partidos = JSON.parse(response);
 
-                    navigation.navigate('MatchHistory', {
-                        idEquipo: idEquipo,
-                        partidos: partidos,
-                        escudo: escudo,
-                        nombreEquipo: nombreEquipo});                       
+                     apiUrl = cons.apiUrl + "/api.php?action=getJugadores";
+
+                    fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+                    .then((response)=>response.text())
+                    .then((response)=>{
+                            
+                        if(response)
+                        {
+                            let jugadores = JSON.parse(response);
+                            
+                            navigation.navigate('MatchHistory', {
+                                idEquipo: idEquipo,
+                                partidos: partidos,
+                                escudo: escudo,
+                                nombreEquipo: nombreEquipo,
+                                jugadores: jugadores});      
+                        } 
+                    })                
                 }                
              })
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})

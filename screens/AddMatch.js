@@ -170,7 +170,7 @@ export default function AddMatch({route, navigation}) {
           </ScrollView>
           <View style={styles.buttonContainer}>
               <TouchableHighlight onPress={saveMatch} style={styles.buttons} underlayColor={colors.lightgreen}>    
-                  <View style={styles.viewButton}><Text style={styles.textButton}>GUARDAR</Text></View>
+                  <View><Text style={styles.textButton}>GUARDAR</Text></View>
               </TouchableHighlight>
           </View>
       </SafeAreaView>
