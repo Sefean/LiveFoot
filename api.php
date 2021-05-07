@@ -4,6 +4,8 @@ $username = 'root';
 $password = '';
 $database_name = 'livefoot';
 
+set_time_limit(0);
+
 $conexion = mysqli_connect($servername, $username, $password);
 $database = mysqli_select_db($conexion, $database_name);
 mysqli_set_charset($conexion, 'utf8');
@@ -46,6 +48,15 @@ switch ($action) {
         break;
     case 'getJugadores':
         getJugadores();
+        break;
+    case 'getMinutoActual':
+        getMinutoActual();
+        break;
+    case 'updateMinutoActual':
+        updateMinutoActual();
+        break;
+    case 'gol':
+        gol();
         break;
     default:
         echo 'Parametro action erroneo';
@@ -172,26 +183,38 @@ function insertarPartido()
 
 function insertarNarracion()
 {
-    $id_partido = $_POST['id_partido'];
-    $id_tipo = $_POST['id_tipo'];
-    $comentario = $_POST['comentario'];
-    $id_jugador1 = $_POST['id_jugador1'];
-    $id_jugador2 = $_POST['id_jugador2'];
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
 
-    $query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `id_jugador1`, `id_jugador2`) VALUES ($id_partido, $id_tipo, '$comentario', id_jugador1, id_jugador2);";
+    $id_partido = $decodedData['id_partido'];
+    $id_tipo = $decodedData['id_tipo'];
+    $comentario = $decodedData['comentario'];
+    $minuto = $decodedData['minuto'];
+    if ($id_tipo != 7) {
+        $id_jugador1 = $decodedData['id_jugador1'];
+    }
+    $id_jugador2 = 0;
+
+    if ($id_tipo == 7) {
+        $query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `minuto`) VALUES ($id_partido, $id_tipo, '$comentario', $minuto);";
+    } elseif ($id_tipo != 6) {
+        $query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `minuto`, `id_jugador1`) VALUES ($id_partido, $id_tipo, '$comentario', $minuto, $id_jugador1);";
+    } else {
+        $id_jugador1 = $decodedData['id_jugador2'];
+        $query = "INSERT INTO `NARRACIONES` (`id_partido`, `id_tipo`, `comentario`, `minuto`, `id_jugador1`, `id_jugador2`) VALUES ($id_partido, $id_tipo, '$comentario', $minuto, $id_jugador1, $id_jugador2);";
+    }
 
     //echo $query;
 
     $resultado = mysqli_query($GLOBALS['conexion'], $query);
 
     if ($resultado) {
-        $mensaje = 'Narracion introducida con exito.';
+        $mensaje = 'Narración añadida.';
     } else {
-        $mensaje = 'Error al introducir la narracion.';
+        $mensaje = 'Error al añadir narración.';
     }
 
-    $respuesta[] = ['Mensaje' => $mensaje];
-    echo json_encode($respuesta);
+    echo $mensaje;
 }
 
 function login()
@@ -237,30 +260,25 @@ function getProvincias()
 
 function uploadImg()
 {
-    /*$encodedData = file_get_contents('php://input');
-		$decodedData = json_decode($encodedData, true);
+    $img = $_FILES['image']['tmp_name'];
+    $imgsize = getimagesize($img);
 
-		$number = 1;
+    echo 'asd';
+    /*$shuffledid = str_shuffle(124243543534543534);
 
-		$img = $decodedData['image'];
-
-		echo json_encode($encodedData);
-		$shuffledid = str_shuffle(124243543534543534);
 		$url = $shuffledid;
 
-		$path = __DIR__ . "/img/escudo_". $number .".png";
+		$path = "http://localhost/liveFoot/img/";
 
 		list($width,$height,$type) = getimagesize($img);
 
 		$pic = imagecreatefrompng($img);
-		$bg = imagecreatetruecolor(600, 700);
+		$bg = imagecreatetruecolor(600,700);
 
-		imagecopyresampled($bg, $pic, 0, 0, 0, 0, 600, 700, $width, $height);
+		imagecopyresampled($bg,$pic,0,0,0,0,600,700,$width,$height);
 
 		imagepng($bg, $path.'/'.$url.'.png');
-
 		imagedestroy($pic);
-
 		echo json_encode("done");*/
 }
 
@@ -336,7 +354,7 @@ function getPartidos()
     $id_equipo = $decodedData['id_equipo'];
 
     $query =
-        'SELECT `id_partido`, `local`, p.`estadio`, p.`minutos_partido`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`, e.`nombre`, `escudo` FROM `PARTIDOS` p  LEFT JOIN `EQUIPOS` `e` on e.`id_equipo` = p.`id_equipo` LEFT JOIN `CLUBES` `c` on c.`id_club` = e.`id_club` WHERE p.`id_equipo` = ' .
+        'SELECT `id_partido`, `local`, p.`estadio`, p.`minutos_partido`, `minuto_actual`, `nombre_rival`, `escudo_rival`, `fecha_hora`, `goles_local`, `goles_visitante`, `resultado`, e.`nombre`, `escudo` FROM `PARTIDOS` p  LEFT JOIN `EQUIPOS` `e` on e.`id_equipo` = p.`id_equipo` LEFT JOIN `CLUBES` `c` on c.`id_club` = e.`id_club` WHERE p.`id_equipo` = ' .
         $id_equipo .
         ' ORDER BY `fecha_hora` DESC';
 
@@ -350,7 +368,8 @@ function getPartidos()
         $arrayPartido['local'] = $row['local'];
         $arrayPartido['estadio'] = $row['estadio'];
         $arrayPartido['minutos_partido'] = $row['minutos_partido'];
-        $arrayPartido['nombre_rival'] = $row['nombre_rival'];
+        $arrayPartido['minuto_actual'] = $row['minuto_actual'];
+        $arrayPartido['nombre_rival'] = strtoupper($row['nombre_rival']);
         $arrayPartido['escudo_rival'] = $row['escudo_rival'];
         $arrayPartido['fecha_hora'] = $row['fecha_hora'];
         $arrayPartido['goles_local'] = $row['goles_local'];
@@ -392,5 +411,83 @@ function getJugadores()
     }
 
     echo json_encode($returnArray);
+}
+
+function getMinutoActual($id_partido = 0)
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    if ($id_partido == 0) {
+        $id_partido = $decodedData['id_partido'];
+    }
+
+    $query =
+        'SELECT minuto_actual FROM `PARTIDOS` WHERE `id_partido` = ' .
+        $id_partido;
+    $result = $GLOBALS['conexion']->query($query);
+    $minuto = 0;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $minuto = $row['minuto_actual'];
+    }
+
+    echo $minuto;
+    return $minuto;
+}
+
+function updateMinutoActual()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_partido = $decodedData['id_partido'];
+    $minuto_actual = $decodedData['minuto_actual'];
+
+    $query =
+        'UPDATE `PARTIDOS` SET `minuto_actual` = ' .
+        $minuto_actual .
+        ' WHERE `PARTIDOS`.`id_partido` = ' .
+        $id_partido;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Minuto actualizado.';
+    } else {
+        $mensaje = 'Error al actualizar el minuto.';
+    }
+
+    echo $mensaje;
+}
+
+function gol()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_partido = $decodedData['id_partido'];
+    $local = $decodedData['local'];
+
+    $query = '';
+
+    if ($local) {
+        $query =
+            'UPDATE `PARTIDOS` SET `goles_local` = `goles_local` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
+            $id_partido;
+    } else {
+        $query =
+            'UPDATE `PARTIDOS` SET `goles_visitante` = `goles_visitante` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
+            $id_partido;
+    }
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Gol añadido.';
+    } else {
+        $mensaje = 'Error al añadir gol.';
+    }
+
+    echo $mensaje;
 }
 ?> 

@@ -41,11 +41,24 @@ export default function AdminTeam({route, navigation}) {
                 {
                     let partidos = JSON.parse(response);
 
-                    navigation.navigate('MatchHistory', {
-                        idEquipo: idEquipo,
-                        partidos: partidos,
-                        escudo: escudo,
-                        nombreEquipo: nombreEquipo});                       
+                     apiUrl = cons.apiUrl + "/api.php?action=getJugadores";
+
+                    fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+                    .then((response)=>response.text())
+                    .then((response)=>{
+                            
+                        if(response)
+                        {
+                            let jugadores = JSON.parse(response);
+                            
+                            navigation.navigate('MatchHistory', {
+                                idEquipo: idEquipo,
+                                partidos: partidos,
+                                escudo: escudo,
+                                nombreEquipo: nombreEquipo,
+                                jugadores: jugadores});      
+                        } 
+                    })                
                 }                
              })
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
@@ -97,37 +110,30 @@ export default function AdminTeam({route, navigation}) {
 
             <View style={styles.secondContainer}>
 
-                <View style={styles.row}>
-                    <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('AddMatch')}} >
-                            <Icon size={60}  name="sports-volleyball" style={styles.icon}></Icon>
+                <View style={styles.containerBotonera}>
+                    <View style={styles.botonera}>
+                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("AddMatch")}>
+                            <Icon size={60} name="add-circle"></Icon>
                             <Text style={styles.buttonText}>CREAR PARTIDO</Text>
                         </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('Players')}} >
-                            
-                            <Icon size={60} name="groups" style={styles.icon}></Icon>
+                       
+                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("Players")}>
+                            <Icon size={60} name="groups"></Icon>
                             <Text style={styles.buttonText}>JUGADORES</Text>
                         </TouchableOpacity>
                     </View>
-                </View>             
 
-                <View style={styles.row}>
-                    <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('MatchHistory')}} >
-                            <Icon size={60} name="calendar-today" style={styles.icon}></Icon>
+                    <View style={styles.botonera}>
+                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("MatchHistory")}>
+                            <Icon size={60} name="calendar-today"></Icon>
                             <Text style={styles.buttonText}>VER PARTIDOS</Text>
                         </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.touchableContainer}>
-                        <TouchableOpacity style={styles.touchable} onPress={()=>{cambiarPagina('edit')}} >
-                            <Icon size={60} name="edit" style={styles.icon}></Icon>
+                       
+                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("Players")}>
+                            <Icon size={60} name="edit"></Icon>
                             <Text style={styles.buttonText}>EDITAR</Text>
-                        </TouchableOpacity>
-                    </View>   
+                        </TouchableOpacity>                  
+                    </View>
                 </View>
             </View>           
         </SafeAreaView>
@@ -154,18 +160,27 @@ const styles = StyleSheet.create({
     {
         flex: 1,
     },
-    touchableContainer:
-    {        
+    containerBotonera:
+    {
         flex: 1,
-        margin: 25,        
-        justifyContent: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    botonera:
+    {
+        flex: 0.5,
+        flexDirection: 'column',
+        alignItems: 'center',
     },
     touchable:
     {
-        flex: 1,
-        backgroundColor: colors.lightgreen,
-        padding: 25,
+        paddingTop: 25,
+        paddingBottom: 25,
+        marginTop: 50,
         borderRadius: 25,        
+        backgroundColor: colors.greyWhite,
+        width: 140,
+        height: 140
     },
     textInput:
     {

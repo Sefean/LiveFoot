@@ -7,4 +7,5 @@ export default{
     black: '#000',
     redLose: '#D9A7A7',
     blueDraw: '#A7C3D9',
+    greyWhite: '#e0e0e0',
 }

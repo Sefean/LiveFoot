@@ -5,16 +5,18 @@ import { Icon } from "react-native-elements";
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-function partidoSeleccionado(idPartido) {
-    console.log(idPartido);
+function partidoSeleccionado(navigation, partido, jugadores) {
+    navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores});
 }
 
 function PartidoView(props) {
 
-    var background = colors.white;
-    var partido = props.item;
+    let background = colors.white;
+    let partido = props.item;
+    let navigation = props.navigation;
+    let jugadores = props.jugadores;
 
-    var fecha = new Date(partido.fecha_hora.substring(0,10));
+    let fecha = new Date(partido.fecha_hora.substring(0,10));
     
     let day = ("0" + fecha.getDate()).slice(-2);
     let month = ("0" + (fecha.getMonth() + 1)).slice(-2)
@@ -22,7 +24,7 @@ function PartidoView(props) {
 
     fecha = day + "/" + month + "/" + year;
 
-    var hora = partido.fecha_hora.substring(11,16);
+    let hora = partido.fecha_hora.substring(11,16);
     
     switch (partido.resultado) {
         case "V":
@@ -39,10 +41,10 @@ function PartidoView(props) {
             break;
     }
 
-    var escudoEquipo = cons.apiUrl + '/img/' + partido.escudo;
+    var escudoEquipo = props.escudo;
     var escudoRival = cons.apiUrl + '/img/' + partido.escudo_rival;
 
-    var nombreLocal = partido.nombre;
+    var nombreLocal = props.nombre;
     var nombreVisitante = partido.nombre_rival;
     var escudoLocal = escudoEquipo;
     var escudoVisitante = escudoRival;
@@ -50,13 +52,13 @@ function PartidoView(props) {
     if(partido.local == 0)
     {
         nombreLocal = partido.nombre_rival;
-        nombreVisitante = partido.nombre;
+        nombreVisitante = props.nombre;
         escudoLocal = escudoRival;
         escudoVisitante = escudoEquipo;
     }
 
     return (
-    <TouchableOpacity onPress={ () => partidoSeleccionado(partido.id_partido)}>
+    <TouchableOpacity onPress={ () => partidoSeleccionado(navigation, partido, jugadores)}>
         <View style={{padding: 10, height: 150, borderTopWidth: 0.2, backgroundColor: background}}>
             <View style={styles.firstRow}>
                 <Text style={styles.cabeceraPartido}>{partido.estadio} | {fecha} | {hora}</Text>
@@ -84,19 +86,20 @@ function PartidoView(props) {
 }
 
 export default function MatchHistory({route, navigation}) {
-    
+
     const params = route.params;
     const escudo = params.escudo;
     const idEquipo = params.idEquipo;
     const nombreEquipo = params.nombreEquipo;
     const partidos = params.partidos;
+    const jugadores = params.jugadores;
     
     return (
         <SafeAreaView style={styles.equiposView}>
             <ScrollView>
                 {partidos.map((prop, key) => {
                     return (
-                    <PartidoView key={key} item={prop}/>
+                    <PartidoView key={key} item={prop} escudo={escudo} nombre={nombreEquipo} navigation={navigation} jugadores={jugadores}/>
                     );
                 })}
             </ScrollView>
@@ -138,13 +141,13 @@ const styles = StyleSheet.create({
     },
     resultado:
     {
-        fontSize: 50,
+        fontSize: 40,
         fontWeight: 'bold',
         paddingBottom: 20
     },
     nombreEquipoTexto:
     {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         paddingBottom: 20       
     },
