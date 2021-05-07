@@ -76,18 +76,23 @@ export default function AdminMatch({route, navigation}) {
     const params = route.params;
     const partido = params.partido;
     const jugadores = params.jugadores;
+    const quitarGol = params.quitarGol;
 
+    //general
     const [starTimer, setStart] = useState(false);
     const [duration, setDuration] = useState(partido.minutos_partido);
     const [databaseTime, setDatabaseTime] = useState(partido.minuto_actual);
     const [minutoInicial, setMinutoInicial] = useState(partido.minuto_actual);
 
+    //goles
     const [golesLocal, setGolesLocal] = useState(partido.goles_local);
     const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante);
 
+    //goles anulados
+
     //para que warnings no salgan en pantalla
     LogBox.ignoreAllLogs();
-
+    
     const buttonPressed = (action, navigation, jugadores, partido, equipo) =>
     {
         if(partido.local == equipo)
@@ -107,8 +112,33 @@ export default function AdminMatch({route, navigation}) {
                     }
 
                     navigation.navigate("SelectPlayerGoal", {jugadores: jugadores, partido: partido});
-                    break;
-            
+                break;
+                
+                case "GOL ANULADO":
+                    if(partido.local == 1)
+                    {
+                        setGolesLocal(parseInt(golesLocal) - 1);
+                    }
+                    else
+                    {
+                        setGolesVisitante(parseInt(golesVisitante) - 1);
+                    }
+                    
+                    navigation.navigate("SelectPlayerGoalDisallowed", {jugadores: jugadores, partido: partido});
+                break;
+
+                case "TARJETA":
+                    navigation.navigate("SelectPlayerCarded", {jugadores: jugadores, partido: partido});
+                break;
+
+                case "CAMBIO":
+                    navigation.navigate("SelectPlayerSubstitutionIn", {jugadores: jugadores, partido: partido});
+                break;
+                
+                case "COMENTARIO":
+                    navigation.navigate("SelectPlayerComment", {jugadores: jugadores, partido: partido});
+                break;
+
                 default:
                     //console.log(jugadores);
                     break;
@@ -131,6 +161,13 @@ export default function AdminMatch({route, navigation}) {
                         setGolesVisitante(parseInt(golesVisitante) + 1);
                     }
                     break;
+                case "GOL ANULADO":
+
+                break;
+
+                case "TARJETA":
+                    console.log('hola');
+                break;
             
                 default:
                     //console.log(jugadores);
@@ -171,6 +208,11 @@ export default function AdminMatch({route, navigation}) {
             console.log(error.message);
             console.log("Error", "Error al intentar añadir gol a la base de datos.");
         });
+    }
+
+    const anularGol = () =>
+    {
+       
     }
 
     //funcion que controla el tiempo del partido y cada vez que pasa un minuto actualiza la bbdd
@@ -233,7 +275,7 @@ export default function AdminMatch({route, navigation}) {
     }*/
 
     useEffect(() => 
-    {        
+    {    
         //cambiamos el nombre de la barra       
         var titulo = partido.nombre + " - " + partido.nombre_rival;
         if(partido.local == 0)
@@ -295,7 +337,7 @@ export default function AdminMatch({route, navigation}) {
                                 <Text style={styles.buttonText}>CAMBIO</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", {navigation, jugadores})}>
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", navigation, jugadores, partido, !!partido.local)}>
                                 <Image 
                                     style={styles.image}
                                     resizeMode={'contain'}
@@ -303,7 +345,7 @@ export default function AdminMatch({route, navigation}) {
                                 <Text style={styles.buttonText}>TARJETA</Text>
                             </TouchableOpacity>
                             
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !!partido.local)}>
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("COMENTARIO", navigation, jugadores, partido, !!partido.local)}>
                                 <Icon size={60} name="mode-comment"></Icon>
                                 <Text style={styles.buttonText}>COMENTARIO</Text>
                             </TouchableOpacity>
@@ -326,7 +368,7 @@ export default function AdminMatch({route, navigation}) {
                                 <Text style={styles.buttonText}>CAMBIO</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", {navigation, jugadores})}>
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("TARJETA", navigation, jugadores, partido, !partido.local)}>
                                 <Image 
                                     style={styles.image}
                                     resizeMode={'contain'}
@@ -334,7 +376,7 @@ export default function AdminMatch({route, navigation}) {
                                 <Text style={styles.buttonText}>TARJETA</Text>
                             </TouchableOpacity>
                             
-                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("CAMBIO", navigation, jugadores, partido, !partido.local)}>
+                            <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("COMENTARIO", navigation, jugadores, partido, !partido.local)}>
                                 <Icon size={60} name="mode-comment"></Icon>
                                 <Text style={styles.buttonText}>COMENTARIO</Text>
                             </TouchableOpacity>                           

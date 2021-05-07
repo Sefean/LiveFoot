@@ -14,6 +14,11 @@ import MatchHistory from './screens/MatchHistory.js';
 import Players from './screens/Players.js';
 import AdminMatch from './screens/AdminMatch.js';
 import SelectPlayerGoal from './screens/SelectPlayerGoal.js';
+import SelectPlayerGoalDisallowed from './screens/SelectPlayerGoalDisallowed.js';
+import SelectPlayerCarded from './screens/SelectPlayerCarded.js';
+import SelectPlayerSubstitutionIn from './screens/SelectPlayerSubstitutionIn.js';
+import SelectPlayerSubstitutionOut from './screens/SelectPlayerSubstitutionOut.js';
+import SelectPlayerComment from './screens/SelectPlayerComment.js';
 
 const Stack = createStackNavigator();
 
@@ -71,7 +76,33 @@ export default function App() {
           name = "SelectPlayerGoal"
           component = {SelectPlayerGoal}
           options={{title:'SELECCIONA GOLEADOR'}}
-        />        
+        />   
+        <Stack.Screen
+          name = "SelectPlayerGoalDisallowed"
+          component = {SelectPlayerGoalDisallowed}
+          options={{title:'SELECCIONA JUGADOR'}}
+        />    
+        <Stack.Screen
+          name = "SelectPlayerCarded"
+          component = {SelectPlayerCarded}
+          options={{title:'JUGADOR AMONESTADO'}}
+        />
+        <Stack.Screen
+          name = "SelectPlayerSubstitutionIn"
+          component = {SelectPlayerSubstitutionIn}
+          options={{title:'JUGADOR ENTRA AL CAMPO'}}
+        /> 
+        <Stack.Screen
+          name = "SelectPlayerSubstitutionOut"
+          component = {SelectPlayerSubstitutionOut}
+          options={{title:'JUGADOR SALE DEL CAMPO'}}
+        /> 
+        <Stack.Screen
+          name = "SelectPlayerComment"
+          component = {SelectPlayerComment}
+          options={{title:'AÑADIR COMENTARIO'}}
+        />   
+         
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

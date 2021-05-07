@@ -6,7 +6,7 @@ import colors from '../config/colors';
 import cons from '../config/cons';
 
 function partidoSeleccionado(navigation, partido, jugadores) {
-    navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores})
+    navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores});
 }
 
 function PartidoView(props) {
