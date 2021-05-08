@@ -46,8 +46,18 @@ export default function SelectPlayerGoal({route, navigation}) {
     
     const params = route.params;
 
-    const [comentario, setComentario] = useState("GOOOOOOL");
+    
+    const jugadores = params.jugadores;
+    const partido = params.partido;
+
+    const [comentario, setComentario] = useState(jugadores.length > 0 ? "GOOOOOOL" : "GOL DEL " + partido.nombre_rival);
     const [goleador, setGoleador] = useState(0);
+
+    if (jugadores.length === 0)
+    {
+        //cambiamos el título si es el rival
+        navigation.setOptions({ title: "GOL DEL " + partido.nombre_rival});
+    }
 
     const addJugadorToComment = (jugador) =>
     {
@@ -87,9 +97,6 @@ export default function SelectPlayerGoal({route, navigation}) {
         });
         
     }
-    
-    const jugadores = params.jugadores;
-    const partido = params.partido;
 
     return (
         <SafeAreaView style={styles.equiposView}>

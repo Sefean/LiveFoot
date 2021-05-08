@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button, ScrollView } from 'react-native';
+import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, FlatList, SafeAreaView, Button, ScrollView, useColorScheme } from 'react-native';
 import { Icon } from "react-native-elements";
 
 import colors from '../config/colors';
@@ -25,6 +25,11 @@ function PartidoView(props) {
     fecha = day + "/" + month + "/" + year;
 
     let hora = partido.fecha_hora.substring(11,16);
+    let enJuego = false;
+    if(partido.resultado == "J")
+    {
+        enJuego = true;
+    }
     
     switch (partido.resultado) {
         case "V":
@@ -80,7 +85,9 @@ function PartidoView(props) {
                     </View>
                     <Text style={styles.nombreEquipoTexto}>{nombreVisitante}</Text>
                 </View>
+                
             </View>
+            {enJuego == true && <Text style={styles.enJuego}>En juego</Text> }
         </View>
     </TouchableOpacity>);
 }
@@ -158,5 +165,12 @@ const styles = StyleSheet.create({
         width: 75,
         height: 75,
         margin: 5
+    },
+    enJuego:
+    {
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#FF0000"
     }
 });

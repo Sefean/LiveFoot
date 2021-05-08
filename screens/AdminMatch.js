@@ -77,6 +77,7 @@ export default function AdminMatch({route, navigation}) {
     const partido = params.partido;
     const jugadores = params.jugadores;
     const quitarGol = params.quitarGol;
+    const rivales = [];
 
     //general
     const [starTimer, setStart] = useState(false);
@@ -102,12 +103,12 @@ export default function AdminMatch({route, navigation}) {
                 case "GOL":
                     if(partido.local == 1)
                     {
-                        gol(true);
+                        gol(true, true);
                         setGolesLocal(parseInt(golesLocal) + 1);
                     }
                     else
                     {
-                        gol(false);
+                        gol(false, true);
                         setGolesVisitante(parseInt(golesVisitante) + 1);
                     }
 
@@ -117,10 +118,12 @@ export default function AdminMatch({route, navigation}) {
                 case "GOL ANULADO":
                     if(partido.local == 1)
                     {
+                        gol(true, false);
                         setGolesLocal(parseInt(golesLocal) - 1);
                     }
                     else
                     {
+                        gol(false, false);
                         setGolesVisitante(parseInt(golesVisitante) - 1);
                     }
                     
@@ -152,21 +155,44 @@ export default function AdminMatch({route, navigation}) {
                     //sumamos gol
                     if(partido.local == 0)
                     {
-                        gol(true);
+                        //local
+                        gol(true, true);
                         setGolesLocal(parseInt(golesLocal) + 1);
                     }
                     else
                     {
-                        gol(false);
+                        //visitante
+                        gol(false, true);
                         setGolesVisitante(parseInt(golesVisitante) + 1);
                     }
-                    break;
-                case "GOL ANULADO":
 
+                    navigation.navigate("SelectPlayerGoal", {jugadores: rivales, partido: partido});
+                    break;
+                
+                case "GOL ANULADO":
+                    if(partido.local == 0)
+                    {
+                        gol(true, false);
+                        setGolesLocal(parseInt(golesLocal) - 1);
+                    }
+                    else
+                    {
+                        gol(false, false);
+                        setGolesVisitante(parseInt(golesVisitante) - 1);
+                    }
+                    navigation.navigate("SelectPlayerGoalDisallowed", {jugadores: rivales, partido: partido});
+                break;
+                
+                case "TARJETA":
+                    navigation.navigate("SelectPlayerCarded", {jugadores: rivales, partido: partido});
                 break;
 
-                case "TARJETA":
-                    console.log('hola');
+                case "CAMBIO":
+                    navigation.navigate("SelectPlayerSubstitutionIn", {jugadores: rivales, partido: partido});
+                break;
+                
+                case "COMENTARIO":
+                    navigation.navigate("SelectPlayerComment", {jugadores: rivales, partido: partido});
                 break;
             
                 default:
@@ -174,7 +200,6 @@ export default function AdminMatch({route, navigation}) {
                     break;
             }
         }
-    
     }
 
     const changeTimer = (iniciar) =>
@@ -182,7 +207,8 @@ export default function AdminMatch({route, navigation}) {
         setStart(iniciar);
     }
 
-    const gol = (local) =>
+    //actualiza el resultado en la base de datos sumando o restando 1 gol al equipo local o visitante
+    const gol = (local, suma) =>
     {
         let apiUrl = cons.apiUrl + "/api.php?action=gol";
         let headers = {
@@ -192,7 +218,8 @@ export default function AdminMatch({route, navigation}) {
 
         let data = {
             id_partido: partido.id_partido,
-            local: local
+            local: local,
+            suma: suma
         };
 
         fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
