@@ -141,10 +141,6 @@ export default function AdminMatch({route, navigation}) {
                 case "COMENTARIO":
                     navigation.navigate("SelectPlayerComment", {jugadores: jugadores, partido: partido});
                 break;
-
-                default:
-                    //console.log(jugadores);
-                    break;
             }
         }
         else
@@ -194,10 +190,6 @@ export default function AdminMatch({route, navigation}) {
                 case "COMENTARIO":
                     navigation.navigate("SelectPlayerComment", {jugadores: rivales, partido: partido});
                 break;
-            
-                default:
-                    //console.log(jugadores);
-                    break;
             }
         }
     }
