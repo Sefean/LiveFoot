@@ -5,7 +5,7 @@ import { Icon } from "react-native-elements";
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-export default function AdminTeam({route, navigation}) {
+export default function PublicTeam({route, navigation}) {
     
     const params = route.params;
     const escudo = params.escudo;
@@ -57,7 +57,7 @@ export default function AdminTeam({route, navigation}) {
                                 escudo: escudo,
                                 nombreEquipo: nombreEquipo,
                                 jugadores: jugadores,
-                                admin: true});      
+                                admin: false});      
                         } 
                     })                
                 }                
@@ -113,11 +113,6 @@ export default function AdminTeam({route, navigation}) {
 
                 <View style={styles.containerBotonera}>
                     <View style={styles.botonera}>
-                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("AddMatch")}>
-                            <Icon size={60} name="add-circle"></Icon>
-                            <Text style={styles.buttonText}>CREAR PARTIDO</Text>
-                        </TouchableOpacity>
-                       
                         <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("Players")}>
                             <Icon size={60} name="groups"></Icon>
                             <Text style={styles.buttonText}>JUGADORES</Text>
@@ -129,11 +124,6 @@ export default function AdminTeam({route, navigation}) {
                             <Icon size={60} name="calendar-today"></Icon>
                             <Text style={styles.buttonText}>PARTIDOS</Text>
                         </TouchableOpacity>
-                       
-                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("Players")}>
-                            <Icon size={60} name="edit"></Icon>
-                            <Text style={styles.buttonText}>EDITAR</Text>
-                        </TouchableOpacity>                  
                     </View>
                 </View>
             </View>           
@@ -166,6 +156,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'center',
+        height: "80%"
     },
     botonera:
     {

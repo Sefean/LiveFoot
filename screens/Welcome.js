@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaView, Alert, Button, StyleSheet, Text, TextInput, View, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
 
 import colors from '../config/colors';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import cons from '../config/cons';
 
 export default function Welcome({navigation}) {
 
@@ -15,7 +15,26 @@ export default function Welcome({navigation}) {
 
     const pressPublic = () =>
     {
-        console.log('PÚBLICO');
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let apiUrl = cons.apiUrl + "/api.php?action=getClubes";
+
+        fetch(apiUrl, {method: 'POST', headers: headers})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                let clubes = JSON.parse(response);        
+                
+                navigation.navigate('SelectClub', {clubes: clubes}); 
+            }                
+        })
+        .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los clubes.");})
+        
     }
 
     return (

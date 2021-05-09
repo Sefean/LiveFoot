@@ -5,8 +5,16 @@ import { Icon } from "react-native-elements";
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-function partidoSeleccionado(navigation, partido, jugadores) {
-    navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores});
+function partidoSeleccionado(navigation, partido, jugadores, admin) {
+    console.log(admin)
+    if(admin)
+    {
+        navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores});
+    }
+    else
+    {
+        console.log('publico');
+    }
 }
 
 function PartidoView(props) {
@@ -15,6 +23,7 @@ function PartidoView(props) {
     let partido = props.item;
     let navigation = props.navigation;
     let jugadores = props.jugadores;
+    let admin = props.admin;
 
     let fecha = new Date(partido.fecha_hora.substring(0,10));
     
@@ -63,7 +72,7 @@ function PartidoView(props) {
     }
 
     return (
-    <TouchableOpacity onPress={ () => partidoSeleccionado(navigation, partido, jugadores)}>
+    <TouchableOpacity onPress={ () => partidoSeleccionado(navigation, partido, jugadores, admin)}>
         <View style={{padding: 10, height: 150, borderTopWidth: 0.2, backgroundColor: background}}>
             <View style={styles.firstRow}>
                 <Text style={styles.cabeceraPartido}>{partido.estadio} | {fecha} | {hora}</Text>
@@ -100,13 +109,14 @@ export default function MatchHistory({route, navigation}) {
     const nombreEquipo = params.nombreEquipo;
     const partidos = params.partidos;
     const jugadores = params.jugadores;
+    const admin = params.admin;
     
     return (
         <SafeAreaView style={styles.equiposView}>
             <ScrollView>
                 {partidos.map((prop, key) => {
                     return (
-                    <PartidoView key={key} item={prop} escudo={escudo} nombre={nombreEquipo} navigation={navigation} jugadores={jugadores}/>
+                    <PartidoView key={key} item={prop} escudo={escudo} nombre={nombreEquipo} navigation={navigation} jugadores={jugadores} admin={admin}/>
                     );
                 })}
             </ScrollView>
