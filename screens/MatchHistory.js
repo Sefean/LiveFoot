@@ -26,7 +26,7 @@ function PartidoView(props) {
 
     let hora = partido.fecha_hora.substring(11,16);
     let enJuego = false;
-    if(partido.resultado == "J")
+    if(partido.resultado == "J1" || partido.resultado == "J2" || partido.resultado == "des")
     {
         enJuego = true;
     }

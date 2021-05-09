@@ -467,23 +467,40 @@ function gol()
 
     $id_partido = $decodedData['id_partido'];
     $local = $decodedData['local'];
+    $suma = $decodedData['suma'];
 
     $query = '';
 
     if ($local) {
-        $query =
-            'UPDATE `PARTIDOS` SET `goles_local` = `goles_local` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
-            $id_partido;
+        if ($suma) {
+            $query =
+                'UPDATE `PARTIDOS` SET `goles_local` = `goles_local` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
+                $id_partido;
+        } else {
+            $query =
+                'UPDATE `PARTIDOS` SET `goles_local` = `goles_local` - 1 WHERE `PARTIDOS`.`id_partido` = ' .
+                $id_partido;
+        }
     } else {
-        $query =
-            'UPDATE `PARTIDOS` SET `goles_visitante` = `goles_visitante` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
-            $id_partido;
+        if ($suma) {
+            $query =
+                'UPDATE `PARTIDOS` SET `goles_visitante` = `goles_visitante` + 1 WHERE `PARTIDOS`.`id_partido` = ' .
+                $id_partido;
+        } else {
+            $query =
+                'UPDATE `PARTIDOS` SET `goles_visitante` = `goles_visitante` - 1 WHERE `PARTIDOS`.`id_partido` = ' .
+                $id_partido;
+        }
     }
 
     $resultado = mysqli_query($GLOBALS['conexion'], $query);
 
     if ($resultado) {
-        $mensaje = 'Gol añadido.';
+        if ($suma) {
+            $mensaje = 'Gol añadido.';
+        } else {
+            $mensaje = 'Gol quitado';
+        }
     } else {
         $mensaje = 'Error al añadir gol.';
     }

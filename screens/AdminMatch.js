@@ -45,7 +45,7 @@ function CabeceraView(props)
 
     return (
         
-        <View style={{height: 150}}>
+        <View style={{height: 140}}>
         
             <View style={styles.secondRow}>
 
@@ -80,7 +80,7 @@ export default function AdminMatch({route, navigation}) {
     const rivales = [];
 
     //general
-    const [starTimer, setStart] = useState(false);
+    const [runTimer, setRunTimer] = useState(false);
     const [duration, setDuration] = useState(partido.minutos_partido);
     const [databaseTime, setDatabaseTime] = useState(partido.minuto_actual);
     const [minutoInicial, setMinutoInicial] = useState(partido.minuto_actual);
@@ -89,7 +89,12 @@ export default function AdminMatch({route, navigation}) {
     const [golesLocal, setGolesLocal] = useState(partido.goles_local);
     const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante);
 
-    //goles anulados
+    //reloj
+    // - = sin empezar -> Iniciar partido
+    // J1 = jugando primera parte -> Descanso
+    // des = descanso -> Iniciar segunda parte
+    // J2 = jugando segunda parte -> Finalizar
+    const [showButton, setShowButton] = useState(partido.resultado);
 
     //para que warnings no salgan en pantalla
     LogBox.ignoreAllLogs();
@@ -194,9 +199,94 @@ export default function AdminMatch({route, navigation}) {
         }
     }
 
-    const changeTimer = (iniciar) =>
+    const changeMatchResult = (resultado) =>
     {
-        setStart(iniciar);
+        let apiUrl = cons.apiUrl + "/api.php?action=cambiarResultado";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_partido: partido.id_partido,
+            resultado: resultado
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                console.log(response);
+
+                setShowButton(resultado);
+            }
+        })
+        .catch((error)=>{
+            console.log(error.message);
+            console.log("Error", "Error al actualizar el resultado en la base de datos.");
+        });
+    } 
+
+    const changeTimer = (estado) =>
+    {
+        let resultado = "";
+
+        switch (estado) {
+            case "iniciar":
+                setRunTimer(true);
+                resultado = "J1";
+            break;
+            case "descanso":
+                setRunTimer(false);
+                resultado = "des";
+
+            break;
+
+            case "segundo":
+                setRunTimer(true);
+                resultado = "J2";
+            break;
+
+            case "fin":
+                
+                if(golesLocal == golesVisitante)
+                {
+                    resultado = "E";
+                }
+                else
+                {
+                    if(partido.local == 1)
+                    {
+                        if(golesLocal > golesVisitante)
+                        {
+                            resultado = "V";
+                        }
+                        else
+                        {
+                            resultado = "D";
+                        }
+                    }
+                    else
+                    {
+                        if(golesLocal > golesVisitante)
+                        {
+                            resultado = "D";
+                        }
+                        else
+                        {
+                            resultado = "V";
+                        }
+                    }                   
+                }
+                
+                setRunTimer(false);
+                
+            break;
+        }
+        
+        changeMatchResult(resultado);        
     }
 
     //actualiza el resultado en la base de datos sumando o restando 1 gol al equipo local o visitante
@@ -225,13 +315,8 @@ export default function AdminMatch({route, navigation}) {
         })
         .catch((error)=>{
             console.log(error.message);
-            console.log("Error", "Error al intentar añadir gol a la base de datos.");
+            console.log("Error", "Error al intentar añadir/restar gol a la base de datos.");
         });
-    }
-
-    const anularGol = () =>
-    {
-       
     }
 
     //funcion que controla el tiempo del partido y cada vez que pasa un minuto actualiza la bbdd
@@ -310,7 +395,7 @@ export default function AdminMatch({route, navigation}) {
             <View style={styles.firstContainer}>
             <Text style={styles.tiempo}>
                     <CountUp 
-                        isCounting={starTimer}
+                        isCounting={runTimer}
                         start={parseInt(minutoInicial * 60)}
                         end={600}
                         duration={600}
@@ -324,22 +409,36 @@ export default function AdminMatch({route, navigation}) {
 
                             val = Math.trunc(val/60);
                             return ("0" + val).slice(-2);
+                            return val;
                         }}
                     />
                 </Text>
                 <CabeceraView partido={partido} golesLocal={golesLocal} golesVisitante={golesVisitante}/>
                 
+                {showButton == "-" && <TouchableOpacity style={styles.buttons} onPress={ () => changeTimer("iniciar")}>
+                    <Text style={styles.buttonText}>INICIAR PARTIDO</Text>
+                </TouchableOpacity>}
 
-                
+                {showButton == "J1" == true && <TouchableOpacity style={styles.buttons} onPress={ () => changeTimer("descanso")}>
+                    <Text style={styles.buttonText}>DESCANSO</Text>
+                </TouchableOpacity>}
+
+                {showButton == "des" == true && <TouchableOpacity style={styles.buttons} onPress={ () => changeTimer("segundo")}>
+                    <Text style={styles.buttonText}>INICIAR SEGUNDO TIEMPO</Text>
+                </TouchableOpacity>}
+
+                {showButton == "J2" == true && <TouchableOpacity style={styles.buttons} onPress={ () => changeTimer("fin")}>
+                    <Text style={styles.buttonText}>FINALIZAR PARTIDO</Text>
+                </TouchableOpacity>}
+
+                {(showButton == "E" || showButton == "V" || showButton == "D") && <Text style={styles.textoFin}>Partido Finalizado</Text>}
                
-                <Button style={{marginBottom: 5}} title="start" onPress={ () => changeTimer(true)}></Button>
-                <Button style={{padding: 5}} title="stop" onPress={ () => changeTimer(false)}></Button>
             </View>
 
             <View style={styles.secondContainer}>
                 <ScrollView>
                     <View style={styles.containerBotonera}>
-                        <View style={[styles.botonera,  {paddingRight: 40}]}>
+                        <View style={[styles.botoneraLeft,  {paddingRight: 40}]}>
                             {/*botones del equipo local*/}
                             <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL", navigation, jugadores, partido, !!partido.local)}>
                                 <Icon size={60} name="sports-volleyball"></Icon>
@@ -370,7 +469,7 @@ export default function AdminMatch({route, navigation}) {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={[styles.botonera,  {paddingLeft: 40}]}>
+                        <View style={[styles.botoneraRight,  {paddingLeft: 40}]}>
                             {/*botones del equipo visitante*/}
                             <TouchableOpacity style={styles.touchable} onPress={ () => buttonPressed("GOL", navigation, jugadores, partido, !partido.local)}>
                                 <Icon size={60} name="sports-volleyball"></Icon>
@@ -414,13 +513,12 @@ const styles = StyleSheet.create({
     },
     firstContainer:
     {
-        flex: 0.4,
+        flex: 0.35,
         backgroundColor: colors.white,
-        padding: 5
     },
     secondContainer:
     {
-        flex: 0.6,
+        flex: 0.65,
         backgroundColor: colors.white,
         borderTopColor: colors.greyWhite,
         borderWidth: 1
@@ -454,9 +552,9 @@ const styles = StyleSheet.create({
     },
     resultado:
     {
-        fontSize: 40,
+        fontSize: 50,
         fontWeight: 'bold',
-        paddingBottom: 40
+        paddingBottom: 30
     },
     tiempo:
     {
@@ -488,11 +586,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
-    botonera:
+    botoneraRight:
     {
         flex: 0.5,
         flexDirection: 'column',
         alignItems: 'center',
+        marginRight: 20
+    },
+    botoneraLeft:
+    {
+        flex: 0.5,
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginLeft: 20
     },
     touchable:
     {
@@ -503,7 +609,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderRadius: 25,        
         backgroundColor: colors.greyWhite,
-        width: 140
+        width: 140,
     },
     buttonText: {        
         fontSize: 16,
@@ -524,13 +630,14 @@ const styles = StyleSheet.create({
         borderColor: colors.darkgreen,
         borderWidth: 3,
         borderRadius: 25,
-        flex: 0.3,
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        marginTop: 30
+        alignSelf: 'center',
+        paddingHorizontal: 30,
+        paddingVertical: 15
     },
-    viewButton:
+    textoFin:
     {
-        width: "100%"
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
   });
