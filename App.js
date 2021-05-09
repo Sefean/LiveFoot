@@ -19,6 +19,9 @@ import SelectPlayerCarded from './screens/SelectPlayerCarded.js';
 import SelectPlayerSubstitutionIn from './screens/SelectPlayerSubstitutionIn.js';
 import SelectPlayerSubstitutionOut from './screens/SelectPlayerSubstitutionOut.js';
 import SelectPlayerComment from './screens/SelectPlayerComment.js';
+import SelectClub from './screens/SelectClub.js';
+import PublicSelectTeam from './screens/PublicSelectTeam.js';
+import PublicTeam from './screens/PublicTeam.js';
 
 const Stack = createStackNavigator();
 
@@ -101,8 +104,22 @@ export default function App() {
           name = "SelectPlayerComment"
           component = {SelectPlayerComment}
           options={{title:'AÑADIR COMENTARIO'}}
-        />   
-         
+        />
+        <Stack.Screen
+          name = "SelectClub"
+          component = {SelectClub}
+          options={{title:'SELECCIÓN DE CLUB'}}
+        />
+        <Stack.Screen
+          name = "PublicSelectTeam"
+          component = {PublicSelectTeam}
+          options={{title:'SELECCION DE EQUIPO'}}
+        />
+        <Stack.Screen
+          name = "PublicTeam"
+          component = {PublicTeam}
+          options={{title:'EQUIPO'}}
+        />      
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>
