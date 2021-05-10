@@ -6,14 +6,35 @@ import colors from '../config/colors';
 import cons from '../config/cons';
 
 function partidoSeleccionado(navigation, partido, jugadores, admin) {
-    console.log(admin)
+    
     if(admin)
     {
         navigation.navigate("AdminMatch", {partido: partido, jugadores: jugadores});
     }
     else
     {
-        console.log('publico');
+        let apiUrl = cons.apiUrl + "/api.php?action=getNarraciones";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_partido: partido.id_partido,
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                let narraciones = (JSON.parse(response));
+                navigation.navigate("PublicMatch", {partido: partido, narraciones: narraciones});
+            }
+        })
+        .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener narraciones.");})
+        
     }
 }
 

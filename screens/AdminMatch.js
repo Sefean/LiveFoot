@@ -76,7 +76,6 @@ export default function AdminMatch({route, navigation}) {
     const params = route.params;
     const partido = params.partido;
     const jugadores = params.jugadores;
-    const quitarGol = params.quitarGol;
     const rivales = [];
 
     //general
@@ -351,32 +350,6 @@ export default function AdminMatch({route, navigation}) {
         })
         
     }
-
-    /*const getMinutoActual = () =>
-    {
-        let apiUrl = cons.apiUrl + "/api.php?action=getMinutoActual";
-        let headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        };
-
-        let data = {
-            id_partido: partido.id_partido,
-        };
-
-        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
-        .then((response)=>response.text())
-        .then((response)=>{
-                
-            if(response)
-            {
-                console.log("minuto actual es : " + response);
-                setPhpTime(response);
-            }
-        })
-        .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al iniciar el crono.");})
-
-    }*/
 
     useEffect(() => 
     {    

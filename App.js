@@ -22,6 +22,7 @@ import SelectPlayerComment from './screens/SelectPlayerComment.js';
 import SelectClub from './screens/SelectClub.js';
 import PublicSelectTeam from './screens/PublicSelectTeam.js';
 import PublicTeam from './screens/PublicTeam.js';
+import PublicMatch from './screens/PublicMatch.js';
 
 const Stack = createStackNavigator();
 
@@ -119,7 +120,12 @@ export default function App() {
           name = "PublicTeam"
           component = {PublicTeam}
           options={{title:'EQUIPO'}}
-        />      
+        />
+        <Stack.Screen
+          name = "PublicMatch"
+          component = {PublicMatch}
+          options={{title:'PARTIDO'}}
+        />    
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>
