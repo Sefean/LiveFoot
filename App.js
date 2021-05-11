@@ -23,6 +23,9 @@ import SelectClub from './screens/SelectClub.js';
 import PublicSelectTeam from './screens/PublicSelectTeam.js';
 import PublicTeam from './screens/PublicTeam.js';
 import PublicMatch from './screens/PublicMatch.js';
+import ViewPlayer from './screens/ViewPlayer.js';
+import EditPlayer from './screens/EditPlayer.js';
+import EditTeam from './screens/EditTeam.js';
 
 const Stack = createStackNavigator();
 
@@ -125,7 +128,22 @@ export default function App() {
           name = "PublicMatch"
           component = {PublicMatch}
           options={{title:'PARTIDO'}}
-        />    
+        />
+        <Stack.Screen
+          name = "ViewPlayer"
+          component = {ViewPlayer}
+          options={{title:'VER JUGADOR'}}
+        />   
+        <Stack.Screen
+          name = "EditPlayer"
+          component = {EditPlayer}
+          options={{title:'EDITAR JUGADOR'}}
+        />
+        <Stack.Screen
+          name = "EditTeam"
+          component = {EditTeam}
+          options={{title:'EDITAR EQUIPO'}}
+        />     
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

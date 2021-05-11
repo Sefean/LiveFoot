@@ -9,6 +9,7 @@ import colors from '../config/colors';
 import cons from '../config/cons';
 
 import Toast from 'react-native-simple-toast';
+import { TouchableOpacity } from 'react-native';
 
 export default function AddMatch({route, navigation}) {
     
@@ -28,6 +29,9 @@ export default function AddMatch({route, navigation}) {
   const [show, setShow] = useState(false);
   const [dateString, setDateString] = useState("");
   const [dateSQL, setDateSQL] = useState("");
+
+  //para que warnings no salgan en pantalla
+  LogBox.ignoreAllLogs();
 
   const modifyDate = (selectedDate) => {
     let day = ("0" + selectedDate.getDate()).slice(-2);
@@ -163,10 +167,12 @@ export default function AddMatch({route, navigation}) {
                 </View>
               </TouchableWithoutFeedback>
 
-              <TextInput defaultValue={paramsEstadio} style={styles.textInput} placeholder={"Estadio/Campo"} placeholderTextColor={"#777777"} onChangeText={text => setEstadio(text)} />
-              <TextInput defaultValue={paramsMinutos_partido} style={styles.textInput} placeholder={"Duración partido (min)"} placeholderTextColor={"#777777"} keyboardType="numeric" onChangeText={text => setDuracion(text)}/>
-              <TextInput style={styles.textInput} placeholder={"Nombre rival"} placeholderTextColor={"#777777"} onChangeText={text => setRival(text)}/>
-              {/*<TextInput style={styles.textInput} placeholder={"Escudo rival"} placeholderTextColor={"#777777"} onChangeText={text => setIdProvincia(text)}/>*/}
+              <TextInput defaultValue={paramsEstadio} style={styles.textInput} placeholder={"Estadio/Campo"} placeholderTextColor={"#7777777"} onChangeText={text => setEstadio(text)} />
+              <TextInput defaultValue={paramsMinutos_partido} style={styles.textInput} placeholder={"Duración partido (min)"} placeholderTextColor={"#7777777"} keyboardType="numeric" onChangeText={text => setDuracion(text)}/>
+              <TextInput style={styles.textInput} placeholder={"Nombre rival"} placeholderTextColor={"#7777777"} onChangeText={text => setRival(text)}/>
+              <TouchableOpacity style={styles.buttonEscudo}>
+                    <Text style={styles.buttonText}>AÑADIR ESCUDO RIVAL</Text>
+              </TouchableOpacity>
           </ScrollView>
           <View style={styles.buttonContainer}>
               <TouchableHighlight onPress={saveMatch} style={styles.buttons} underlayColor={colors.lightgreen}>    
@@ -247,5 +253,16 @@ const styles = StyleSheet.create({
     {
       fontSize: 16,
       fontWeight: 'bold',
+    },
+    buttonEscudo:
+    {
+      backgroundColor: colors.mediumgreen,
+      borderColor: colors.darkgreen,
+      borderWidth: 3,
+      borderRadius: 25,
+      alignSelf: 'center',
+      paddingHorizontal: 30,
+      paddingVertical: 10,
+      marginTop: "5%",
     }
   });

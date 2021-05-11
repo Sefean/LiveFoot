@@ -94,11 +94,29 @@ export default function AdminTeam({route, navigation}) {
                 {
                     let jugadores = JSON.parse(response);
                     
-                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, jugadores: jugadores});                 
+                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, jugadores: jugadores, admin: true});                 
                 }                
              })
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
 
+        }
+        else if(nombrePagina == "EditTeam")
+        {
+            let apiUrl = cons.apiUrl + "/api.php?action=getInfoEquipo";
+
+            fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+            .then((response)=>response.text())
+            .then((response)=>{
+                    
+                if(response)
+                {
+                    
+                    let infoEquipo = JSON.parse(response);
+
+                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, estadio: infoEquipo.estadio, minutos_partido: infoEquipo.minutos_partido, nombre: infoEquipo.nombre})                 
+                }                
+             })
+            .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})
         }
 
     }
@@ -130,7 +148,7 @@ export default function AdminTeam({route, navigation}) {
                             <Text style={styles.buttonText}>PARTIDOS</Text>
                         </TouchableOpacity>
                        
-                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("Players")}>
+                        <TouchableOpacity style={styles.touchable} onPress={ () => cambiarPagina("EditTeam")}>
                             <Icon size={60} name="edit"></Icon>
                             <Text style={styles.buttonText}>EDITAR</Text>
                         </TouchableOpacity>                  

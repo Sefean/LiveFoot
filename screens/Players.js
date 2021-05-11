@@ -5,17 +5,55 @@ import { Icon } from "react-native-elements";
 import colors from '../config/colors';
 import cons from '../config/cons';
 
-function playerSeleccionado(idPlayer) {
-    console.log(idPlayer);
+function playerSeleccionado(idEquipo, foto, nombre, dorsal, navigation, admin) {
+
+    if(admin)
+    {
+        navigation.navigate('EditPlayer', {foto: foto, nombre: nombre, dorsal: dorsal})
+    }
+    else
+    {
+        let apiUrl = cons.apiUrl + "/api.php?action=getNombreEquipo";
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        let data = {
+            id_equipo: idEquipo,
+        };
+
+        fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
+        .then((response)=>response.text())
+        .then((response)=>{
+                
+            if(response)
+            {
+                let respuesta = JSON.parse(response);
+                let nombreEquipo = respuesta.nombreEquipo;
+                let nombreClub = respuesta.nombreClub;
+                
+                navigation.navigate('ViewPlayer', {foto: foto, nombre: nombre, dorsal: dorsal, nombreEquipo: nombreEquipo, nombreClub: nombreClub})
+            }
+        })
+        .catch((error)=>{
+            console.log(error.message);
+            console.log("Error", "Error al intentar obtener información del jugador.");
+        });
+    }
+
 }
 
 function JugadorView(props) {
 
-    var jugador = props.item;
-    var fotoJugador = cons.apiUrl + '/img/' + jugador.foto;
+    let jugador = props.item;
+    let navigation = props.navigation;
+    let admin = props.admin;
+    let idEquipo = props.idEquipo;
+    let fotoJugador = cons.apiUrl + '/img/' + jugador.foto;
 
     return (
-        <TouchableOpacity onPress={ () => playerSeleccionado(jugador.id_jugador)}>
+        <TouchableOpacity onPress={ () => playerSeleccionado(idEquipo, fotoJugador, jugador.nombre, jugador.dorsal, navigation, admin)}>
             <View style={{padding: 0, height: 50, borderBottomWidth: 0.3}}>
                 <View style={styles.row}>
                     <View style={styles.imgColumn}>
@@ -40,17 +78,14 @@ export default function Players({route, navigation}) {
     
     const idEquipo = params.idEquipo;
     const jugadores = params.jugadores;
-    
-    //se llama antes de renderizar
-    useEffect(() => {
-    });
+    const admin = params.admin;
 
     return (
         <SafeAreaView style={styles.equiposView}>
             <ScrollView>
                 {jugadores.map((prop, key) => {
                     return (
-                    <JugadorView key={key} item={prop}/>
+                    <JugadorView key={key} item={prop} navigation={navigation} idEquipo={idEquipo} admin={admin}/>
                     );
                 })}
             </ScrollView>

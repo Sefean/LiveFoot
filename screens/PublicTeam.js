@@ -94,7 +94,7 @@ export default function PublicTeam({route, navigation}) {
                 {
                     let jugadores = JSON.parse(response);
                     
-                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, jugadores: jugadores});                 
+                    navigation.navigate(nombrePagina, {idEquipo: idEquipo, jugadores: jugadores, admin: false});                 
                 }                
              })
             .catch((error)=>{console.log(error.message);Alert.alert("Error", "Error al obtener los partidos del equipo.");})

@@ -46,7 +46,7 @@ function CabeceraView(props)
 
     return (
         
-        <View style={{height: 140}}>
+        <View style={{height: 100}}>
         
             <View style={styles.secondRow}>
 
@@ -98,6 +98,10 @@ export default function PublicMatch({route, navigation}) {
     const [golesLocal, setGolesLocal] = useState(partido.goles_local);
     const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante);
 
+    //actualizar narracion
+    const [refreshing, setRefreshing] = useState(false);
+
+
     //para que warnings no salgan en pantalla
     LogBox.ignoreAllLogs();
 
@@ -128,10 +132,6 @@ export default function PublicMatch({route, navigation}) {
                 goles_l = respuesta.goles_local;
                 goles_v = respuesta.goles_visitante;
 
-                console.log(minuto)
-                console.log(goles_l)
-                console.log(goles_v)
-
                 apiUrl = cons.apiUrl + "/api.php?action=getNarraciones";
 
                 fetch(apiUrl, {method: 'POST', headers: headers, body: JSON.stringify(data)})
@@ -143,7 +143,8 @@ export default function PublicMatch({route, navigation}) {
                     setGolesLocal(goles_l);
                     setGolesVisitante(goles_v);
                     setMinutoActual(minuto);
-                    //console.log(JSON.parse(response));
+
+                    console.log(JSON.parse(response));
                 }})
 
             .catch((error)=>{console.log(error.message);Toast.show("Error", "Error al obtener las narraciones.");})
@@ -182,7 +183,7 @@ export default function PublicMatch({route, navigation}) {
                         renderItem={({item}) => 
                         (        
                             <View style={styles.narracionView}>
-                                <Text style={styles.narracionMinuto}>{item.minuto}'</Text>
+                                <Text style={styles.narracionMinuto}>{item.minuto < 10 ? "0" : ""}{item.minuto}'</Text>
                                 {(item.icono != "yellow-card.png" && item.icono != "yellow-card-2.png" && item.icono != "red-card.png") ?
                                 <Icon style={styles.narracionIcono} size={30} name={item.icono}></Icon> :
                                 <Image style={styles.imgTarjeta} source={{uri: cons.apiUrl + '/img/' + item.icono}}/>}
@@ -320,7 +321,8 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignSelf: 'center',
         paddingHorizontal: 30,
-        paddingVertical: 15
+        paddingVertical: 10,
+        marginTop: "5%"
     },
     textoFin:
     {
@@ -341,12 +343,12 @@ const styles = StyleSheet.create({
     },
     narracionIcono: {        
         fontSize: 20,
-        margin: 10
+        margin: 10,
     },
     narracionText: {        
         fontSize: 20,
         margin: 10,
-        paddingEnd: 50
+        paddingEnd: 70
     },
     imgTarjeta:
     {
