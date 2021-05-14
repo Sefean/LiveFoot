@@ -89,7 +89,7 @@ export default function PublicMatch({route, navigation}) {
     
     const params = route.params;
     const partido = params.partido;
-    const narraciones = params.narraciones;
+    const paramsNarraciones = params.narraciones;
 
     //general
     const [minutoActual, setMinutoActual] = useState(partido.minuto_actual);
@@ -99,7 +99,8 @@ export default function PublicMatch({route, navigation}) {
     const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante);
 
     //actualizar narracion
-    const [refreshing, setRefreshing] = useState(false);
+    const [narraciones, setNarraciones] = useState(paramsNarraciones);
+    const [newData, setNewData] = useState(false);
 
 
     //para que warnings no salgan en pantalla
@@ -127,7 +128,6 @@ export default function PublicMatch({route, navigation}) {
             if(response)
             {
                 let respuesta = JSON.parse(response);
-                console.log(respuesta);
                 minuto = respuesta.minuto_actual;
                 goles_l = respuesta.goles_local;
                 goles_v = respuesta.goles_visitante;
@@ -144,7 +144,9 @@ export default function PublicMatch({route, navigation}) {
                     setGolesVisitante(goles_v);
                     setMinutoActual(minuto);
 
-                    console.log(JSON.parse(response));
+                    setNarraciones(JSON.parse(response));
+                    setNewData(true);
+
                 }})
 
             .catch((error)=>{console.log(error.message);Toast.show("Error", "Error al obtener las narraciones.");})
@@ -180,6 +182,7 @@ export default function PublicMatch({route, navigation}) {
                 <FlatList
                         data={narraciones}
                         ItemSeparatorComponent={renderSeparator}
+                        extraData={newData} 
                         renderItem={({item}) => 
                         (        
                             <View style={styles.narracionView}>

@@ -31,9 +31,6 @@ switch ($action) {
     case 'login':
         login();
         break;
-    case 'getProvincias':
-        getProvincias();
-        break;
     case 'uploadImg':
         uploadImg();
         break;
@@ -49,14 +46,29 @@ switch ($action) {
     case 'getJugadores':
         getJugadores();
         break;
-    case 'getMinutoActual':
-        getMinutoActual();
+    case 'actualizarNarracion':
+        actualizarNarracion();
         break;
     case 'updateMinutoActual':
         updateMinutoActual();
         break;
     case 'gol':
         gol();
+        break;
+    case 'cambiarResultado':
+        cambiarResultado();
+        break;
+    case 'getClubes':
+        getClubes();
+        break;
+    case 'getNarraciones':
+        getNarraciones();
+        break;
+    case 'getNombreEquipo':
+        getNombreEquipo();
+        break;
+    case 'cambiosClub':
+        cambiosClub();
         break;
     default:
         echo 'Parametro action erroneo';
@@ -73,18 +85,10 @@ function insertarClub()
     $pass = password_hash($decodedData['pass'], PASSWORD_BCRYPT);
     $nombre = $decodedData['nombre'];
     //$escudo = $decodedData['escudo'];
-    //$id_subscripcion = $decodedData['id_subscripcion'];
-    //$fecha_ini_subs = $decodedData['fecha_ini_subs'];
-    //$fecha_fin_subs = $decodedData['fecha_fin_subs'];
-    //$id_provincia = $decodedData['id_provincia'];
 
     $escudo = 'defaultEscudo.png';
-    $id_subscripcion = 1;
-    $fecha_ini_subs = '2021-03-01';
-    $fecha_fin_subs = '2021-03-01';
-    $id_provincia = 1;
 
-    $query = "INSERT into `CLUBES` (`email`, `pass`, `nombre`, `escudo`, `id_subscripcion`, `fecha_ini_subs`, `fecha_fin_subs`, `id_provincia`) VALUES ('$email', '$pass', '$nombre', '$escudo', $id_subscripcion, '$fecha_ini_subs', '$fecha_fin_subs', $id_provincia)";
+    $query = "INSERT into `CLUBES` (`email`, `pass`, `nombre`, `escudo`) VALUES ('$email', '$pass', '$nombre', '$escudo')";
 
     //echo $query;
 
@@ -190,6 +194,7 @@ function insertarNarracion()
     $id_tipo = $decodedData['id_tipo'];
     $comentario = $decodedData['comentario'];
     $minuto = $decodedData['minuto'];
+
     if ($id_tipo != 7) {
         $id_jugador1 = $decodedData['id_jugador1'];
     }
@@ -240,22 +245,6 @@ function login()
     }
 
     echo $return;
-}
-
-function getProvincias()
-{
-    $query = 'SELECT * FROM `PROVINCIAS` ORDER BY provincia';
-
-    $arr_provincias = [];
-    $result = $GLOBALS['conexion']->query($query);
-    if ($result->num_rows > 0) {
-        while ($row = mysqli_fetch_array($result)) {
-            $arr_provincias[$row['id_provincia']] = $row['provincia'];
-            //echo $row['provincia'];
-        }
-
-        echo json_encode($arr_provincias, JSON_UNESCAPED_UNICODE);
-    }
 }
 
 function uploadImg()
@@ -315,13 +304,14 @@ function getInfoEquipo()
     $id_equipo = $decodedData['id_equipo'];
 
     $query =
-        'SELECT `estadio`, `minutos_partido` FROM `EQUIPOS` WHERE `id_equipo` = ' .
+        'SELECT `nombre`, `estadio`, `minutos_partido` FROM `EQUIPOS` WHERE `id_equipo` = ' .
         $id_equipo;
 
     $result = $GLOBALS['conexion']->query($query);
     $returnArray = [];
 
     while ($row = mysqli_fetch_array($result)) {
+        $returnArray['nombre'] = $row['nombre'];
         $returnArray['estadio'] = $row['estadio'];
         $returnArray['minutos_partido'] = $row['minutos_partido'];
     }
@@ -334,7 +324,7 @@ function getEquipos($id_club)
     $query =
         'SELECT `id_equipo`, `nombre` FROM `EQUIPOS` WHERE `id_club` = ' .
         $id_club .
-        'ORDER BY `nombre`';
+        ' ORDER BY `nombre`';
 
     $result = $GLOBALS['conexion']->query($query);
     $arrayEquipos = [];
@@ -413,28 +403,6 @@ function getJugadores()
     echo json_encode($returnArray);
 }
 
-function getMinutoActual($id_partido = 0)
-{
-    $encodedData = file_get_contents('php://input');
-    $decodedData = json_decode($encodedData, true);
-
-    if ($id_partido == 0) {
-        $id_partido = $decodedData['id_partido'];
-    }
-
-    $query =
-        'SELECT minuto_actual FROM `PARTIDOS` WHERE `id_partido` = ' .
-        $id_partido;
-    $result = $GLOBALS['conexion']->query($query);
-    $minuto = 0;
-    while ($row = mysqli_fetch_assoc($result)) {
-        $minuto = $row['minuto_actual'];
-    }
-
-    echo $minuto;
-    return $minuto;
-}
-
 function updateMinutoActual()
 {
     $encodedData = file_get_contents('php://input');
@@ -503,6 +471,138 @@ function gol()
         }
     } else {
         $mensaje = 'Error al añadir gol.';
+    }
+
+    echo $mensaje;
+}
+
+function cambiarResultado()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_partido = $decodedData['id_partido'];
+    $resultado = $decodedData['resultado'];
+
+    $query =
+        "UPDATE `PARTIDOS` SET `resultado` = '" .
+        $resultado .
+        "' WHERE `id_partido` = " .
+        $id_partido;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Resultado cambiado.';
+    } else {
+        $mensaje = 'Error al actualizar el resultado.';
+    }
+
+    echo $mensaje;
+}
+
+function getClubes()
+{
+    $query =
+        'SELECT `id_club`, `nombre`, `escudo` FROM `CLUBES` ORDER BY `nombre`';
+
+    $result = $GLOBALS['conexion']->query($query);
+    $returnArray = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $returnArray[] = $row;
+    }
+
+    echo json_encode($returnArray);
+}
+
+function getNarraciones()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_partido = $decodedData['id_partido'];
+
+    $query =
+        'SELECT `comentario`, `minuto`, `icono` from `NARRACIONES` LEFT JOIN ELEMENTOS_NARRACION on NARRACIONES.id_tipo = ELEMENTOS_NARRACION.id_tipo WHERE id_partido = ' .
+        $id_partido .
+        ' ORDER BY minuto DESC, id_narracion DESC';
+
+    $result = $GLOBALS['conexion']->query($query);
+    $returnArray = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $returnArray[] = $row;
+    }
+
+    echo json_encode($returnArray);
+}
+
+function actualizarNarracion()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_partido = $decodedData['id_partido'];
+
+    $query =
+        'SELECT minuto_actual, goles_local, goles_visitante FROM PARTIDOS WHERE id_partido = ' .
+        $id_partido;
+    $result = $GLOBALS['conexion']->query($query);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $returnArray = $row;
+    }
+
+    echo json_encode($returnArray);
+}
+
+function getNombreEquipo()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_equipo = $decodedData['id_equipo'];
+
+    $query =
+        'SELECT EQUIPOS.nombre as nombreEquipo, CLUBES.nombre as nombreClub FROM `EQUIPOS` LEFT JOIN CLUBES on EQUIPOS.id_club = CLUBES.id_club WHERE id_equipo = ' .
+        $id_equipo;
+
+    $result = $GLOBALS['conexion']->query($query);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $returnArray = $row;
+    }
+
+    echo json_encode($returnArray);
+}
+
+function cambiosClub()
+{
+    $encodedData = file_get_contents('php://input');
+    $decodedData = json_decode($encodedData, true);
+
+    $id_equipo = $decodedData['id_equipo'];
+    $nombre = $decodedData['nombre'];
+    $estadio = $decodedData['estadio'];
+    $minutos_partido = $decodedData['minutos_partido'];
+
+    $query =
+        "UPDATE `EQUIPOS` SET `nombre` = '" .
+        $nombre .
+        "',  `estadio` = '" .
+        $estadio .
+        "', `minutos_partido` = " .
+        $minutos_partido .
+        '  WHERE `id_equipo` = ' .
+        $id_equipo;
+
+    $resultado = mysqli_query($GLOBALS['conexion'], $query);
+
+    if ($resultado) {
+        $mensaje = 'Equipo actualizado.';
+    } else {
+        $mensaje = 'Error al actualizar el equipo.';
     }
 
     echo $mensaje;
