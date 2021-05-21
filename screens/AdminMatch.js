@@ -382,7 +382,6 @@ export default function AdminMatch({route, navigation}) {
 
                             val = Math.trunc(val/60);
                             return ("0" + val).slice(-2);
-                            return val;
                         }}
                     />
                 </Text>

@@ -142,6 +142,7 @@ export default function PublicMatch({route, navigation}) {
                 {
                     setGolesLocal(goles_l);
                     setGolesVisitante(goles_v);
+                    minuto = ("0" + minuto).slice(-2);
                     setMinutoActual(minuto);
 
                     setNarraciones(JSON.parse(response));
